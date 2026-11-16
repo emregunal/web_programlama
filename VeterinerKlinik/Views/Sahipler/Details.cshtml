@@ -65,7 +65,7 @@ else
             {
                 <tr>
                     <td>@o.Tarih.ToString("dd.MM.yyyy HH:mm")</td>
-                    <td class="text-end">@(o.Tutar.ToString("N2") + " ₺")</td>
+                    <td class="text-end">@o.Tutar.TL()</td>
                     <td>@o.Yontem.GetDisplayName()</td>
                 </tr>
             }
@@ -73,7 +73,7 @@ else
         <tfoot>
             <tr>
                 <th>Toplam</th>
-                <th class="text-end">@(toplam.ToString("N2") + " ₺")</th>
+                <th class="text-end">@toplam.TL()</th>
                 <th></th>
             </tr>
         </tfoot>
