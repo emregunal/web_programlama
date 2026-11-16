@@ -9,9 +9,7 @@ using VeterinerKlinik.Data;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
-// Türkçe karakterleri HTML kodu olarak yazma
 builder.Services.AddSingleton(HtmlEncoder.Create(UnicodeRanges.All));
-// klinik.db hep proje klasöründe olsun
 var baglanti = new SqliteConnectionStringBuilder(builder.Configuration.GetConnectionString("DefaultConnection"));
 if (!Path.IsPathRooted(baglanti.DataSource))
     baglanti.DataSource = Path.Combine(builder.Environment.ContentRootPath, baglanti.DataSource);
