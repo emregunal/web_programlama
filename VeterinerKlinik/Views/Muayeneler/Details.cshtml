@@ -1,0 +1,150 @@
+@model MuayeneDetayModel
+@{
+    var m = Model.Muayene;
+    var hayvan = m.Hayvan!;
+    var sahip = hayvan.Sahip!;
+    var ilaclar = (SelectList)ViewData["Ilaclar"]!;
+    ViewData["Title"] = "Muayene #" + m.Id;
+}
+
+<h1>Muayene #@m.Id</h1>
+<partial name="_Bildirim" />
+
+<dl class="row">
+    <dt class="col-sm-3">@Html.DisplayNameFor(x => x.Muayene.Tarih)</dt>
+    <dd class="col-sm-9">@m.Tarih.ToString("dd.MM.yyyy HH:mm")</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(x => x.Muayene.HayvanId)</dt>
+    <dd class="col-sm-9">@hayvan.Ad (@hayvan.Tur.GetDisplayName())</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(x => x.Muayene.Hayvan!.Irk)</dt>
+    <dd class="col-sm-9">@hayvan.Irk</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(x => x.Muayene.Hayvan!.SahipId)</dt>
+    <dd class="col-sm-9"><a asp-controller="Sahipler" asp-action="Details" asp-route-id="@hayvan.SahipId">@sahip.AdSoyad</a> - @sahip.Telefon</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(x => x.Muayene.VeterinerId)</dt>
+    <dd class="col-sm-9">@m.Veteriner!.AdSoyad</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(x => x.Muayene.RandevuId)</dt>
+    <dd class="col-sm-9">@(m.Randevu?.Baslangic.ToString("dd.MM.yyyy HH:mm") ?? "—")</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(x => x.Muayene.Sikayet)</dt>
+    <dd class="col-sm-9 satir-korunur">@m.Sikayet</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(x => x.Muayene.Teshis)</dt>
+    <dd class="col-sm-9 satir-korunur">@m.Teshis</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(x => x.Muayene.Tedavi)</dt>
+    <dd class="col-sm-9 satir-korunur">@m.Tedavi</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(x => x.Muayene.Notlar)</dt>
+    <dd class="col-sm-9 satir-korunur">@m.Notlar</dd>
+</dl>
+
+<div class="mb-4">
+    <a asp-action="Edit" asp-route-id="@m.Id" class="btn btn-primary">Düzenle</a>
+    <a asp-action="Delete" asp-route-id="@m.Id" class="btn btn-danger">Sil</a>
+    <a asp-action="Recete" asp-route-id="@m.Id" class="btn btn-outline-secondary">Reçete Yazdır</a>
+    <a asp-action="Index" class="btn btn-secondary">Listeye Dön</a>
+</div>
+
+<h2 id="recete" class="h4">Reçete</h2>
+@if (!m.ReceteKalemleri.Any())
+{
+    <p class="text-muted">Reçeteye ilaç eklenmedi.</p>
+}
+else
+{
+    <table class="table table-sm align-middle">
+        <thead>
+            <tr>
+                <th>İlaç</th>
+                <th>Doz</th>
+                <th>Kullanım Şekli</th>
+                <th>Süre (gün)</th>
+                <th>Miktar</th>
+                <th class="text-end">Birim Fiyat</th>
+                <th class="text-end">Tutar</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var k in m.ReceteKalemleri)
+            {
+                <tr>
+                    <td>@k.Ilac!.AdVeForm</td>
+                    <td>@k.Doz</td>
+                    <td>@k.KullanimSekli</td>
+                    <td>@k.SureGun</td>
+                    <td>@k.Adet @k.Ilac.Birim</td>
+                    <td class="text-end">@k.BirimFiyat.TL()</td>
+                    <td class="text-end">@k.Tutar.TL()</td>
+                    <td class="text-end">
+                        <form asp-action="ReceteKalemiSil" asp-route-id="@k.Id" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bu ilacı reçeteden çıkarmak istiyor musunuz?');">Çıkar</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<div class="card mb-4" id="ilac-ekle">
+    <div class="card-header">İlaç Ekle</div>
+    <div class="card-body">
+        @if (!ilaclar.Any())
+        {
+            <div class="alert alert-warning">Reçeteye ilaç eklemek için önce <a asp-controller="Ilaclar" asp-action="Create">ilaç tanımlayın</a>.</div>
+        }
+        <form asp-action="ReceteKalemiEkle" asp-route-muayeneId="@m.Id" asp-fragment="ilac-ekle" method="post">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="YeniKalem.IlacId" class="form-label"></label>
+                    <select asp-for="YeniKalem.IlacId" asp-items="ilaclar" class="form-select">
+                        <option value="">-- İlaç seçin --</option>
+                    </select>
+                    <span asp-validation-for="YeniKalem.IlacId" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="YeniKalem.Doz" class="form-label"></label>
+                    <input asp-for="YeniKalem.Doz" class="form-control" placeholder="ör. 1 tablet" />
+                    <span asp-validation-for="YeniKalem.Doz" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="YeniKalem.KullanimSekli" class="form-label"></label>
+                    <input asp-for="YeniKalem.KullanimSekli" class="form-control" placeholder="ör. Günde 2 kez, tok karnına" />
+                    <span asp-validation-for="YeniKalem.KullanimSekli" class="text-danger"></span>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="YeniKalem.SureGun" class="form-label"></label>
+                    <input asp-for="YeniKalem.SureGun" class="form-control" />
+                    <span asp-validation-for="YeniKalem.SureGun" class="text-danger"></span>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="YeniKalem.Adet" class="form-label"></label>
+                    <input asp-for="YeniKalem.Adet" class="form-control" />
+                    <span asp-validation-for="YeniKalem.Adet" class="text-danger"></span>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Ekle</button>
+        </form>
+    </div>
+</div>
+
+<div class="row justify-content-end">
+    <div class="col-md-5 col-lg-4">
+        <table class="table table-sm">
+            <tbody>
+                <tr>
+                    <td>Muayene ücreti</td>
+                    <td class="text-end">@m.Ucret.TL()</td>
+                </tr>
+                <tr>
+                    <td>İlaç toplamı</td>
+                    <td class="text-end">@Model.IlacToplami.TL()</td>
+                </tr>
+                <tr>
+                    <th>Genel toplam</th>
+                    <th class="text-end">@Model.GenelToplam.TL()</th>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

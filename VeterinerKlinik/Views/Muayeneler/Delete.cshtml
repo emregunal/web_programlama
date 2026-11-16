@@ -1,0 +1,49 @@
+@model Muayene
+@{
+    ViewData["Title"] = "Muayene Sil";
+    var kalemSayisi = (int)(ViewData["KalemSayisi"] ?? 0);
+    var odemeSayisi = (int)(ViewData["OdemeSayisi"] ?? 0);
+}
+
+<h1>Muayene Sil</h1>
+<partial name="_Bildirim" />
+
+@if (odemeSayisi == 0)
+{
+    <p class="text-danger">Bu muayeneyi silmek istediğinizden emin misiniz? Reçetedeki ilaçlar da silinecek.</p>
+    @if (Model.Randevu?.Durum == RandevuDurumu.Tamamlandi)
+    {
+        <p class="text-danger">Bağlı randevu tekrar 'Planlandı' durumuna alınacak.</p>
+    }
+}
+
+<dl class="row">
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Tarih)</dt>
+    <dd class="col-sm-9">@Model.Tarih.ToString("dd.MM.yyyy HH:mm")</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.HayvanId)</dt>
+    <dd class="col-sm-9">@Model.Hayvan!.Ad (@Model.Hayvan.Tur.GetDisplayName())</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Hayvan!.SahipId)</dt>
+    <dd class="col-sm-9">@Model.Hayvan.Sahip!.AdSoyad</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.VeterinerId)</dt>
+    <dd class="col-sm-9">@Model.Veteriner!.AdSoyad</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Teshis)</dt>
+    <dd class="col-sm-9">@Model.Teshis</dd>
+    <dt class="col-sm-3">Reçete Kalemi Sayısı</dt>
+    <dd class="col-sm-9">@kalemSayisi</dd>
+    <dt class="col-sm-3">Ödeme Sayısı</dt>
+    <dd class="col-sm-9">@odemeSayisi</dd>
+</dl>
+
+@if (odemeSayisi > 0)
+{
+    <div class="alert alert-warning">Bu muayeneye bağlı ödeme olduğu için silinemez.</div>
+    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Geri Dön</a>
+}
+else
+{
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Sil</button>
+        <a asp-action="Index" class="btn btn-secondary">Vazgeç</a>
+    </form>
+}
