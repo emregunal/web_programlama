@@ -18,7 +18,9 @@
     <dt class="col-sm-3">@Html.DisplayNameFor(x => x.Muayene.Hayvan!.Irk)</dt>
     <dd class="col-sm-9">@hayvan.Irk</dd>
     <dt class="col-sm-3">@Html.DisplayNameFor(x => x.Muayene.Hayvan!.SahipId)</dt>
-    <dd class="col-sm-9"><a asp-controller="Sahipler" asp-action="Details" asp-route-id="@hayvan.SahipId">@sahip.AdSoyad</a> - @sahip.Telefon</dd>
+    <dd class="col-sm-9">
+        <a asp-controller="Sahipler" asp-action="Details" asp-route-id="@hayvan.SahipId">@sahip.AdSoyad</a> - @sahip.Telefon
+    </dd>
     <dt class="col-sm-3">@Html.DisplayNameFor(x => x.Muayene.VeterinerId)</dt>
     <dd class="col-sm-9">@m.Veteriner!.AdSoyad</dd>
     <dt class="col-sm-3">@Html.DisplayNameFor(x => x.Muayene.RandevuId)</dt>
@@ -37,6 +39,11 @@
     <a asp-action="Edit" asp-route-id="@m.Id" class="btn btn-primary">Düzenle</a>
     <a asp-action="Delete" asp-route-id="@m.Id" class="btn btn-danger">Sil</a>
     <a asp-action="Recete" asp-route-id="@m.Id" class="btn btn-outline-secondary">Reçete Yazdır</a>
+    <a asp-controller="Odemeler" asp-action="Fatura" asp-route-id="@m.Id" class="btn btn-outline-secondary">Fatura</a>
+    @if (m.KalanBorc > 0)
+    {
+        <a asp-controller="Odemeler" asp-action="Create" asp-route-muayeneId="@m.Id" class="btn btn-success">Ödeme Al</a>
+    }
     <a asp-action="Index" class="btn btn-secondary">Listeye Dön</a>
 </div>
 
@@ -57,7 +64,7 @@ else
                 <th>Miktar</th>
                 <th class="text-end">Birim Fiyat</th>
                 <th class="text-end">Tutar</th>
-                <th></th>
+                <th><span class="visually-hidden">İşlemler</span></th>
             </tr>
         </thead>
         <tbody>
@@ -73,7 +80,9 @@ else
                     <td class="text-end">@k.Tutar.TL()</td>
                     <td class="text-end">
                         <form asp-action="ReceteKalemiSil" asp-route-id="@k.Id" method="post" class="d-inline">
-                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bu ilacı reçeteden çıkarmak istiyor musunuz?');">Çıkar</button>
+                            <button type="submit"
+                                    class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('Bu ilacı reçeteden çıkarmak istiyor musunuz?');">Çıkar</button>
                         </form>
                     </td>
                 </tr>
@@ -87,7 +96,9 @@ else
     <div class="card-body">
         @if (!ilaclar.Any())
         {
-            <div class="alert alert-warning">Reçeteye ilaç eklemek için önce <a asp-controller="Ilaclar" asp-action="Create">ilaç tanımlayın</a>.</div>
+            <div class="alert alert-warning">
+                Reçeteye ilaç eklemek için önce <a asp-controller="Ilaclar" asp-action="Create">ilaç tanımlayın</a>.
+            </div>
         }
         <form asp-action="ReceteKalemiEkle" asp-route-muayeneId="@m.Id" asp-fragment="ilac-ekle" method="post">
             <div class="row">
@@ -134,16 +145,63 @@ else
                 </tr>
                 <tr>
                     <td>İlaç toplamı</td>
-                    <td class="text-end">@Model.IlacToplami.TL()</td>
+                    <td class="text-end">@m.IlacToplami.TL()</td>
                 </tr>
                 <tr>
                     <th>Genel toplam</th>
-                    <th class="text-end">@Model.GenelToplam.TL()</th>
+                    <th class="text-end">@m.GenelToplam.TL()</th>
+                </tr>
+                <tr>
+                    <td>Ödenen</td>
+                    <td class="text-end">@m.OdenenToplam.TL()</td>
+                </tr>
+                <tr>
+                    <th>Kalan borç</th>
+                    <th class="text-end">@m.KalanBorc.TL()</th>
+                </tr>
+                <tr>
+                    <td>Durum</td>
+                    <td class="text-end"><partial name="_OdemeDurumuRozeti" model="m.OdemeDurumu" /></td>
                 </tr>
             </tbody>
         </table>
     </div>
 </div>
+
+<h2 id="odemeler" class="h4">Ödemeler</h2>
+@if (!m.Odemeler.Any())
+{
+    <p class="text-muted">Ödeme alınmadı.</p>
+}
+else
+{
+    <table class="table table-sm align-middle">
+        <thead>
+            <tr>
+                <th>Tarih</th>
+                <th>Yöntem</th>
+                <th class="text-end">Tutar</th>
+                <th>Açıklama</th>
+                <th><span class="visually-hidden">İşlemler</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var o in m.Odemeler)
+            {
+                <tr>
+                    <td>@o.Tarih.ToString("dd.MM.yyyy HH:mm")</td>
+                    <td>@o.Yontem.GetDisplayName()</td>
+                    <td class="text-end">@o.Tutar.TL()</td>
+                    <td>@o.Aciklama</td>
+                    <td class="text-end">
+                        <a asp-controller="Odemeler" asp-action="Details" asp-route-id="@o.Id"
+                           class="btn btn-sm btn-outline-secondary">Makbuz</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

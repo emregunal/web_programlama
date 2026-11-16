@@ -539,7 +539,7 @@ namespace VeterinerKlinik.Migrations
             modelBuilder.Entity("VeterinerKlinik.Models.Odeme", b =>
                 {
                     b.HasOne("VeterinerKlinik.Models.Muayene", "Muayene")
-                        .WithMany()
+                        .WithMany("Odemeler")
                         .HasForeignKey("MuayeneId")
                         .OnDelete(DeleteBehavior.SetNull);
 
@@ -603,6 +603,8 @@ namespace VeterinerKlinik.Migrations
 
             modelBuilder.Entity("VeterinerKlinik.Models.Muayene", b =>
                 {
+                    b.Navigation("Odemeler");
+
                     b.Navigation("ReceteKalemleri");
                 });
 

@@ -20,7 +20,7 @@ if (!Path.IsPathRooted(baglanti.DataSource))
     baglanti.DataSource = Path.Combine(builder.Environment.ContentRootPath, baglanti.DataSource);
 
 builder.Services.AddDbContext<KlinikDbContext>(options =>
-    options.UseSqlite(baglanti.ToString()));
+    options.UseSqlite(baglanti.ToString(), o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
 var app = builder.Build();
 

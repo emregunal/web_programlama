@@ -18,9 +18,6 @@ public class MuayenelerController : Controller
         _db = db;
     }
 
-    private static decimal IlacToplamiHesapla(IEnumerable<ReceteKalemi> kalemler) =>
-        kalemler.Sum(k => k.Tutar);
-
     private static string HayvanSecimMetni(Hayvan h) =>
         $"{h.Ad} ({h.Tur.GetDisplayName()}) - {h.Sahip!.AdSoyad}";
 
@@ -115,29 +112,25 @@ public class MuayenelerController : Controller
             .Include(m => m.Veteriner)
             .Include(m => m.Randevu)
             .Include(m => m.ReceteKalemleri.OrderBy(k => k.Id)).ThenInclude(k => k.Ilac)
+            .Include(m => m.Odemeler.OrderBy(o => o.Tarih).ThenBy(o => o.Id))
             .FirstOrDefaultAsync(m => m.Id == id);
         if (muayene == null) return null;
 
         await IlacListesiniDoldurAsync(yeniKalem?.IlacId);
 
-        var model = new MuayeneDetayModel
-        {
-            Muayene = muayene,
-            IlacToplami = IlacToplamiHesapla(muayene.ReceteKalemleri)
-        };
+        var model = new MuayeneDetayModel { Muayene = muayene };
         if (yeniKalem != null) model.YeniKalem = yeniKalem;
         return model;
     }
 
-    public async Task<IActionResult> Index(string? arama, int? veterinerId, DateTime? baslangic, DateTime? bitis)
+    public async Task<IActionResult> Index(string? arama, int? veterinerId, OdemeDurumu? odemeDurumu, DateTime? baslangic, DateTime? bitis)
     {
         arama = arama?.Trim();
 
         var sorgu = _db.Muayeneler.AsNoTracking()
             .Include(m => m.Hayvan).ThenInclude(h => h!.Sahip)
             .Include(m => m.Veteriner)
-            .Include(m => m.ReceteKalemleri)
-            .AsQueryable();
+            .HesapIle();
 
         if (veterinerId != null)
             sorgu = sorgu.Where(m => m.VeterinerId == veterinerId);
@@ -160,7 +153,10 @@ public class MuayenelerController : Controller
             }
         }
 
-        var muayeneler = await sorgu.OrderByDescending(m => m.Tarih).ToListAsync();
+        var muayeneler = await sorgu.OrderByDescending(m => m.Tarih).ThenByDescending(m => m.Id).ToListAsync();
+
+        if (odemeDurumu != null)
+            muayeneler = muayeneler.Where(m => m.OdemeDurumu == odemeDurumu).ToList();
 
         var liste = muayeneler.Select(m => new MuayeneListeOgesi
         {
@@ -172,8 +168,9 @@ public class MuayenelerController : Controller
             SahipAdSoyad = m.Hayvan.Sahip!.AdSoyad,
             VeterinerAdSoyad = m.Veteriner!.AdSoyad,
             Teshis = m.Teshis,
-            Ucret = m.Ucret,
-            IlacToplami = IlacToplamiHesapla(m.ReceteKalemleri)
+            GenelToplam = m.GenelToplam,
+            KalanBorc = m.KalanBorc,
+            OdemeDurumu = m.OdemeDurumu
         }).ToList();
 
         if (!string.IsNullOrEmpty(arama))
@@ -187,6 +184,7 @@ public class MuayenelerController : Controller
             .OrderBy(v => v.Metin, TurkceMetin.Siralama)
             .ToList();
         ViewData["Veterinerler"] = new SelectList(veterinerler, "Id", "Metin", veterinerId);
+        ViewData["OdemeDurumlari"] = EnumHelper.SecimListesi(odemeDurumu);
         ViewData["Arama"] = arama;
         ViewData["Baslangic"] = baslangic?.ToString("yyyy-MM-dd");
         ViewData["Bitis"] = bitis?.ToString("yyyy-MM-dd");
@@ -233,12 +231,24 @@ public class MuayenelerController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ReceteKalemiSil(int id)
     {
-        var kalem = await _db.ReceteKalemleri.FirstOrDefaultAsync(k => k.Id == id);
+        await using var islem = await _db.Database.BeginTransactionAsync();
+        var kalem = await _db.ReceteKalemleri
+            .Include(k => k.Muayene).ThenInclude(m => m!.ReceteKalemleri)
+            .Include(k => k.Muayene).ThenInclude(m => m!.Odemeler)
+            .FirstOrDefaultAsync(k => k.Id == id);
         if (kalem == null) return NotFound();
 
         var muayeneId = kalem.MuayeneId;
+        var muayene = kalem.Muayene!;
+        if (muayene.GenelToplam - kalem.Tutar < muayene.OdenenToplam)
+        {
+            TempData["Hata"] = "Bu ilaç çıkarılırsa muayene toplamı ödenen tutarın altına düşer.";
+            return RedirectToAction(nameof(Details), new { id = muayeneId });
+        }
+
         _db.ReceteKalemleri.Remove(kalem);
         await _db.SaveChangesAsync();
+        await islem.CommitAsync();
 
         TempData["Mesaj"] = "İlaç reçeteden çıkarıldı.";
         return RedirectToAction(nameof(Details), null, new { id = muayeneId }, fragment: "recete");
@@ -325,7 +335,10 @@ public class MuayenelerController : Controller
     {
         if (id != muayene.Id) return NotFound();
 
-        var mevcut = await _db.Muayeneler.FirstOrDefaultAsync(m => m.Id == id);
+        await using var islem = await _db.Database.BeginTransactionAsync();
+        var mevcut = await _db.Muayeneler
+            .HesapIle()
+            .FirstOrDefaultAsync(m => m.Id == id);
         if (mevcut == null) return NotFound();
 
         if (mevcut.RandevuId != null)
@@ -334,10 +347,21 @@ public class MuayenelerController : Controller
             muayene.HayvanId = mevcut.HayvanId;
         }
 
-        if (muayene.HayvanId != mevcut.HayvanId && await _db.Odemeler.AnyAsync(o => o.MuayeneId == id))
+        if (ModelState.GetFieldValidationState(nameof(Muayene.HayvanId)) != ModelValidationState.Invalid &&
+            muayene.HayvanId != mevcut.HayvanId && mevcut.Odemeler.Any())
             ModelState.AddModelError(nameof(Muayene.HayvanId), "Ödemesi olan muayenenin hayvanı değiştirilemez.");
 
         await MuayeneDogrulaAsync(muayene, mevcut.VeterinerId, yeniKayit: false);
+
+        if (ModelState.GetFieldValidationState(nameof(Muayene.Tarih)) != ModelValidationState.Invalid &&
+            mevcut.Odemeler.Any(o => o.Tarih.Date < muayene.Tarih.Date))
+            ModelState.AddModelError(nameof(Muayene.Tarih), "Muayene tarihi, alınmış ödemelerin tarihinden sonra olamaz.");
+
+        if (ModelState.GetFieldValidationState(nameof(Muayene.Ucret)) != ModelValidationState.Invalid &&
+            muayene.Ucret + mevcut.IlacToplami < mevcut.OdenenToplam)
+            ModelState.AddModelError(
+                nameof(Muayene.Ucret),
+                $"Muayene toplamı ödenen tutarın ({mevcut.OdenenToplam.TL()}) altına düşemez.");
 
         if (!ModelState.IsValid)
         {
@@ -355,6 +379,7 @@ public class MuayenelerController : Controller
         mevcut.Notlar = muayene.Notlar;
         mevcut.Ucret = muayene.Ucret;
         await _db.SaveChangesAsync();
+        await islem.CommitAsync();
 
         TempData["Mesaj"] = "Muayene güncellendi.";
         return RedirectToAction(nameof(Details), new { id });
@@ -379,6 +404,7 @@ public class MuayenelerController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
+        await using var islem = await _db.Database.BeginTransactionAsync();
         var muayene = await _db.Muayeneler.Include(m => m.Randevu).FirstOrDefaultAsync(m => m.Id == id);
         if (muayene == null) return NotFound();
 
@@ -393,6 +419,7 @@ public class MuayenelerController : Controller
 
         _db.Muayeneler.Remove(muayene);
         await _db.SaveChangesAsync();
+        await islem.CommitAsync();
 
         TempData["Mesaj"] = "Muayene silindi.";
         return RedirectToAction(nameof(Index));

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
 namespace VeterinerKlinik.Models;
@@ -51,4 +52,31 @@ public class Muayene
     public Veteriner? Veteriner { get; set; }
     public Randevu? Randevu { get; set; }
     public ICollection<ReceteKalemi> ReceteKalemleri { get; set; } = new List<ReceteKalemi>();
+    public ICollection<Odeme> Odemeler { get; set; } = new List<Odeme>();
+
+    [NotMapped]
+    public string KisaTanim => $"#{Id} - {Tarih:dd.MM.yyyy} - {Hayvan?.Ad}";
+
+    [NotMapped]
+    public decimal IlacToplami => ReceteKalemleri.Sum(k => k.Tutar);
+
+    [NotMapped]
+    public decimal GenelToplam => Ucret + IlacToplami;
+
+    [NotMapped]
+    public decimal OdenenToplam => Odemeler.Sum(o => o.Tutar);
+
+    [NotMapped]
+    public decimal KalanBorc => GenelToplam - OdenenToplam;
+
+    [NotMapped]
+    public OdemeDurumu OdemeDurumu
+    {
+        get
+        {
+            if (KalanBorc <= 0) return OdemeDurumu.Odendi;
+            if (OdenenToplam > 0) return OdemeDurumu.KismenOdendi;
+            return OdemeDurumu.Odenmedi;
+        }
+    }
 }

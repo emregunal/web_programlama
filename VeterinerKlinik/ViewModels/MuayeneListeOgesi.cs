@@ -12,7 +12,7 @@ public class MuayeneListeOgesi
     public string SahipAdSoyad { get; set; } = string.Empty;
     public string VeterinerAdSoyad { get; set; } = string.Empty;
     public string Teshis { get; set; } = string.Empty;
-    public decimal Ucret { get; set; }
-    public decimal IlacToplami { get; set; }
-    public decimal GenelToplam => Ucret + IlacToplami;
+    public decimal GenelToplam { get; set; }
+    public decimal KalanBorc { get; set; }
+    public OdemeDurumu OdemeDurumu { get; set; }
 }

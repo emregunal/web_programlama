@@ -67,12 +67,13 @@ public class SahiplerController : Controller
         if (id == null) return NotFound();
 
         var sahip = await _db.Sahipler.AsNoTracking()
-            .Include(s => s.Hayvanlar)
+            .Include(s => s.Hayvanlar).ThenInclude(h => h.Muayeneler).ThenInclude(m => m.ReceteKalemleri)
+            .Include(s => s.Hayvanlar).ThenInclude(h => h.Muayeneler).ThenInclude(m => m.Odemeler)
             .Include(s => s.Odemeler)
             .FirstOrDefaultAsync(s => s.Id == id);
         if (sahip == null) return NotFound();
 
-        sahip.Odemeler = sahip.Odemeler.OrderByDescending(o => o.Tarih).ToList();
+        sahip.Odemeler = sahip.Odemeler.OrderByDescending(o => o.Tarih).ThenByDescending(o => o.Id).ToList();
         sahip.Hayvanlar = sahip.Hayvanlar.OrderBy(h => h.Ad, TurkceMetin.Siralama).ToList();
         return View(sahip);
     }
