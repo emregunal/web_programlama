@@ -1,0 +1,85 @@
+@model Odeme
+@{
+    ViewData["Title"] = "Makbuz #" + Model.Id;
+    var muayene = Model.Muayene;
+}
+
+<div class="d-print-none mb-3">
+    <button type="button" class="btn btn-primary" onclick="window.print()">Yazdır</button>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">Düzenle</a>
+    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">Sil</a>
+    @if (Model.MuayeneId != null)
+    {
+        <a asp-controller="Muayeneler" asp-action="Details" asp-route-id="@Model.MuayeneId" class="btn btn-secondary">Muayeneye Dön</a>
+    }
+    <a asp-action="Index" class="btn btn-secondary">Listeye Dön</a>
+    <partial name="_Bildirim" />
+</div>
+
+<div class="border rounded p-4">
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h1 class="h3 mb-0">Veteriner Kliniği</h1>
+            <div class="fw-bold">TAHSİLAT MAKBUZU</div>
+        </div>
+        <div class="text-end">
+            <div>Makbuz No: @Model.Id</div>
+            <div>Tarih: @Model.Tarih.ToString("dd.MM.yyyy HH:mm")</div>
+        </div>
+    </div>
+
+    <dl class="row">
+        <dt class="col-sm-3">Sahip</dt>
+        <dd class="col-sm-9">@Model.Sahip!.AdSoyad</dd>
+        <dt class="col-sm-3">Telefon</dt>
+        <dd class="col-sm-9">@Model.Sahip.Telefon</dd>
+        <dt class="col-sm-3">@Html.DisplayNameFor(m => m.MuayeneId)</dt>
+        <dd class="col-sm-9">
+            @if (muayene != null)
+            {
+                <span>@muayene.KisaTanim</span>
+            }
+            else
+            {
+                <span>—</span>
+            }
+        </dd>
+        <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Yontem)</dt>
+        <dd class="col-sm-9">@Model.Yontem.GetDisplayName()</dd>
+        @if (!string.IsNullOrWhiteSpace(Model.Aciklama))
+        {
+            <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Aciklama)</dt>
+            <dd class="col-sm-9">@Model.Aciklama</dd>
+        }
+        <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Tutar)</dt>
+        <dd class="col-sm-9 fs-4 fw-bold">@Model.Tutar.TL()</dd>
+    </dl>
+
+    @if (muayene != null)
+    {
+        <h2 class="h6 text-uppercase text-muted">Güncel hesap durumu (@DateTime.Now.ToString("dd.MM.yyyy HH:mm") itibarıyla)</h2>
+        <table class="table table-sm table-bordered w-auto">
+            <tbody>
+                <tr>
+                    <td>Muayene toplamı</td>
+                    <td class="text-end">@muayene.GenelToplam.TL()</td>
+                </tr>
+                <tr>
+                    <td>Toplam ödenen</td>
+                    <td class="text-end">@muayene.OdenenToplam.TL()</td>
+                </tr>
+                <tr>
+                    <th>Kalan borç</th>
+                    <th class="text-end">@muayene.KalanBorc.TL()</th>
+                </tr>
+            </tbody>
+        </table>
+    }
+
+    <div class="d-flex justify-content-end mt-5">
+        <div class="text-center" style="min-width: 220px;">
+            <div>Teslim Alan</div>
+            <div class="border-bottom mt-5"></div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,45 @@
+@model Odeme
+@{
+    ViewData["Title"] = "Ödeme Sil";
+}
+
+<h1>Ödeme Sil</h1>
+<partial name="_Bildirim" />
+
+<p class="text-danger">
+    Bu ödemeyi silmek istediğinizden emin misiniz?
+    @if (Model.Muayene != null)
+    {
+        <text>Muayenenin kalan borcu @Model.Tutar.TL() kadar artacak.</text>
+    }
+</p>
+
+<dl class="row">
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Tarih)</dt>
+    <dd class="col-sm-9">@Model.Tarih.ToString("dd.MM.yyyy HH:mm")</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.SahipId)</dt>
+    <dd class="col-sm-9">@Model.Sahip!.AdSoyad</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.MuayeneId)</dt>
+    <dd class="col-sm-9">
+        @if (Model.Muayene != null)
+        {
+            <span>@Model.Muayene.KisaTanim</span>
+        }
+        else
+        {
+            <span>—</span>
+        }
+    </dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Yontem)</dt>
+    <dd class="col-sm-9">@Model.Yontem.GetDisplayName()</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Tutar)</dt>
+    <dd class="col-sm-9">@Model.Tutar.TL()</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Aciklama)</dt>
+    <dd class="col-sm-9">@Model.Aciklama</dd>
+</dl>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Sil</button>
+    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Vazgeç</a>
+</form>
