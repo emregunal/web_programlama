@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +9,9 @@ using VeterinerKlinik.Data;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
-// Göreli veritabanı yolunu proje klasörüne sabitle; uygulama hangi klasörden başlatılırsa başlatılsın aynı klinik.db kullanılır.
+// Türkçe karakterleri HTML kodu olarak yazma
+builder.Services.AddSingleton(HtmlEncoder.Create(UnicodeRanges.All));
+// klinik.db hep proje klasöründe olsun
 var baglanti = new SqliteConnectionStringBuilder(builder.Configuration.GetConnectionString("DefaultConnection"));
 if (!Path.IsPathRooted(baglanti.DataSource))
     baglanti.DataSource = Path.Combine(builder.Environment.ContentRootPath, baglanti.DataSource);
