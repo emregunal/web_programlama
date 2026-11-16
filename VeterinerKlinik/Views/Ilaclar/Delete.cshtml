@@ -1,0 +1,40 @@
+@model Ilac
+@{
+    ViewData["Title"] = "İlaç Sil";
+    var kullanimSayisi = (int)(ViewData["KullanimSayisi"] ?? 0);
+}
+
+<h1>İlaç Sil</h1>
+<partial name="_Bildirim" />
+
+@if (kullanimSayisi == 0)
+{
+    <p class="text-danger">Bu ilacı silmek istediğinizden emin misiniz?</p>
+}
+
+<dl class="row">
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Ad)</dt>
+    <dd class="col-sm-9">@Model.Ad</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Form)</dt>
+    <dd class="col-sm-9">@Model.Form</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Birim)</dt>
+    <dd class="col-sm-9">@Model.Birim</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.BirimFiyat)</dt>
+    <dd class="col-sm-9">@Model.BirimFiyat.TL()</dd>
+    <dt class="col-sm-3">Reçete Sayısı</dt>
+    <dd class="col-sm-9">@kullanimSayisi</dd>
+</dl>
+
+@if (kullanimSayisi > 0)
+{
+    <div class="alert alert-warning">Bu ilaç reçetelerde kullanıldığı için silinemez.</div>
+    <a asp-action="Index" class="btn btn-secondary">Geri Dön</a>
+}
+else
+{
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Sil</button>
+        <a asp-action="Index" class="btn btn-secondary">Vazgeç</a>
+    </form>
+}

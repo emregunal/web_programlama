@@ -1,0 +1,25 @@
+@model Ilac
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label asp-for="Ad" class="form-label"></label>
+        <input asp-for="Ad" class="form-control" />
+        <span asp-validation-for="Ad" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Form" class="form-label"></label>
+        <input asp-for="Form" class="form-control" />
+        <span asp-validation-for="Form" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Birim" class="form-label"></label>
+        <input asp-for="Birim" class="form-control" />
+        <span asp-validation-for="Birim" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="BirimFiyat" class="form-label"></label>
+        <input asp-for="BirimFiyat" class="form-control" inputmode="decimal" />
+        <span asp-validation-for="BirimFiyat" class="text-danger"></span>
+    </div>
+</div>
