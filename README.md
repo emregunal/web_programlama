@@ -15,6 +15,34 @@ dotnet run --project VeterinerKlinik
 - Yeni migration eklemek için: `dotnet ef migrations add <Ad> --project VeterinerKlinik`
 - `*.db` dosyaları git'e eklenmez.
 
+## Giriş bilgileri (demo)
+
+İlk açılışta hiç kullanıcı yoksa üç demo hesap oluşturulur. Gerçek ortamda parolalar değiştirilmelidir.
+
+| Kullanıcı adı | Parola | Rol |
+|---|---|---|
+| `admin` | `Admin123!` | Yönetici |
+| `veteriner` | `Veteriner123!` | Veteriner (Ayşe Yılmaz) |
+| `sekreter` | `Sekreter123!` | Sekreter |
+
+### Rol yetkileri
+
+Okuma: listeleme ve görüntüleme (Index, Details, Takvim, Recete, Fatura). Yazma: diğer tüm işlemler (ekleme, düzenleme, silme).
+
+| Bölüm | Okuma | Yazma |
+|---|---|---|
+| Ana Sayfa | Hepsi | Hepsi |
+| Sahipler | Hepsi | Yönetici, Sekreter |
+| Hayvanlar | Hepsi | Yönetici, Sekreter, Veteriner |
+| Randevular | Hepsi | Yönetici, Sekreter |
+| Muayeneler | Hepsi | Yönetici, Veteriner |
+| İlaçlar | Hepsi | Yönetici, Veteriner |
+| Aşılar | Hepsi | Yönetici, Veteriner |
+| Ödemeler | Yönetici, Sekreter | Yönetici, Sekreter |
+| Kullanıcılar | Yönetici | Yönetici |
+
+Yetki tablosu tek yerde tutulur: `VeterinerKlinik/Helpers/YetkiKurallari.cs`. Tabloda olmayan bir bölüme erişim kapalıdır.
+
 ## Klasör yapısı
 
 ```

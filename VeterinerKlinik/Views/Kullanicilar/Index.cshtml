@@ -1,0 +1,77 @@
+@model IEnumerable<KullaniciListeOgesi>
+@{
+    ViewData["Title"] = "Kullanıcılar";
+}
+
+<div class="sayfa-baslik">
+    <div>
+        <h1>Kullanıcılar</h1>
+        <p class="sayfa-aciklama">Sisteme giriş yapabilen hesaplar ve rolleri. Hesaplar silinmez, pasifleştirilir.</p>
+    </div>
+    <div class="sayfa-eylemler">
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg" aria-hidden="true"></i> Yeni Kullanıcı
+        </a>
+    </div>
+</div>
+
+<partial name="_Bildirim" />
+
+<div class="tablo-kart">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th scope="col">Ad Soyad</th>
+                <th scope="col">Kullanıcı adı</th>
+                <th scope="col">Rol</th>
+                <th scope="col">Veteriner kaydı</th>
+                <th scope="col">Durum</th>
+                <th scope="col" class="text-end"><span class="visually-hidden">İşlemler</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var k in Model)
+            {
+                var rolSinif = k.Rol switch
+                {
+                    KullaniciRolu.Admin => "durum-turuncu",
+                    KullaniciRolu.Veteriner => "durum-yesil",
+                    _ => "durum-mavi"
+                };
+                <tr>
+                    <td><a asp-action="Edit" asp-route-id="@k.Id" class="hucre-ana">@k.AdSoyad</a></td>
+                    <td>@k.KullaniciAdi</td>
+                    <td><span class="badge durum-rozeti @rolSinif">@k.Rol.GetDisplayName()</span></td>
+                    <td>@(k.VeterinerAdSoyad ?? "—")</td>
+                    <td>
+                        <span class="badge durum-rozeti @(k.Aktif ? "durum-yesil" : "durum-gri")">@(k.Aktif ? "Aktif" : "Pasif")</span>
+                    </td>
+                    <td>
+                        <div class="islemler">
+                            <a asp-action="Edit" asp-route-id="@k.Id" class="btn btn-ikon" title="Düzenle"
+                               aria-label="@k.AdSoyad düzenle">
+                                <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="6">
+                        <div class="bos-durum">
+                            <span class="bos-durum-ikon" aria-hidden="true"><partial name="_Pati" /></span>
+                            <div class="bos-durum-baslik">Henüz kullanıcı yok.</div>
+                            <a asp-action="Create" class="btn btn-primary btn-sm">
+                                <i class="bi bi-plus-lg" aria-hidden="true"></i> Yeni Kullanıcı
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<p class="text-secondary small mt-3">Kullanıcı silme yoktur; hesabı devre dışı bırakmak için düzenleyip pasif yapın.</p>

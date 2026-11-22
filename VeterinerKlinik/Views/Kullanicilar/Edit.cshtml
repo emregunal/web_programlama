@@ -1,0 +1,28 @@
+@model KullaniciFormModel
+@{
+    ViewData["Title"] = "Kullanıcı Düzenle";
+}
+
+<a asp-action="Index" class="geri-link"><i class="bi bi-arrow-left" aria-hidden="true"></i> Kullanıcılar</a>
+<div class="sayfa-baslik">
+    <div>
+        <h1>Kullanıcı Düzenle</h1>
+        <p class="sayfa-aciklama">Rol, durum ve parola bilgilerini güncelleyin. Parola alanları boşsa parola değişmez.</p>
+    </div>
+</div>
+<partial name="_Bildirim" />
+
+<form asp-action="Edit" method="post" class="card form-kart" autocomplete="off">
+    <input type="hidden" asp-for="Id" />
+    <div class="card-body">
+        <partial name="_KullaniciForm" model="Model" />
+    </div>
+    <div class="card-footer">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg" aria-hidden="true"></i> Kaydet</button>
+        <a asp-action="Index" class="btn btn-secondary">Vazgeç</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -214,6 +214,49 @@ namespace VeterinerKlinik.Migrations
                         });
                 });
 
+            modelBuilder.Entity("VeterinerKlinik.Models.Kullanici", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("AdSoyad")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Aktif")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("KayitTarihi")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("KullaniciAdi")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ParolaOzeti")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Rol")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("VeterinerId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("KullaniciAdi")
+                        .IsUnique();
+
+                    b.HasIndex("VeterinerId");
+
+                    b.ToTable("Kullanicilar");
+                });
+
             modelBuilder.Entity("VeterinerKlinik.Models.Muayene", b =>
                 {
                     b.Property<int>("Id")
@@ -508,6 +551,16 @@ namespace VeterinerKlinik.Migrations
                         .IsRequired();
 
                     b.Navigation("Sahip");
+                });
+
+            modelBuilder.Entity("VeterinerKlinik.Models.Kullanici", b =>
+                {
+                    b.HasOne("VeterinerKlinik.Models.Veteriner", "Veteriner")
+                        .WithMany()
+                        .HasForeignKey("VeterinerId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Veteriner");
                 });
 
             modelBuilder.Entity("VeterinerKlinik.Models.Muayene", b =>

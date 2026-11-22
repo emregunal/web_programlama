@@ -48,3 +48,10 @@ public enum AsiDurumu
     [Display(Name = "Takip Yok")] TakipYok,
     [Display(Name = "Yenilendi")] Yenilendi
 }
+
+public enum KullaniciRolu
+{
+    [Display(Name = "Yönetici")] Admin,
+    [Display(Name = "Veteriner")] Veteriner,
+    [Display(Name = "Sekreter")] Sekreter
+}
