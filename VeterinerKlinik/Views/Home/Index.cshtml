@@ -1,8 +1,53 @@
 ﻿@{
     ViewData["Title"] = "Ana Sayfa";
+    var moduller = new (string Controller, string Baslik, string Aciklama, string Ikon)[]
+    {
+        ("Sahipler", "Sahipler", "Hayvan sahiplerinin iletişim bilgileri, hesap ve borç durumu.", "bi-people"),
+        ("Hayvanlar", "Hayvanlar", "Hasta kayıtları, tür ve ırk bilgileri, sağlık geçmişi.", "pati"),
+        ("Randevular", "Randevular", "Randevu takvimi ve veteriner planlaması.", "bi-calendar2-week"),
+        ("Muayeneler", "Muayeneler", "Muayene kayıtları, teşhis, tedavi ve reçeteler.", "bi-clipboard2-pulse"),
+        ("Ilaclar", "İlaçlar", "İlaç kataloğu, birim ve fiyat bilgileri.", "bi-capsule"),
+        ("Asilar", "Aşılar", "Aşı takvimi ve hatırlatmalar.", "bi-shield-plus"),
+        ("Odemeler", "Ödemeler", "Tahsilatlar, makbuzlar ve faturalar.", "bi-wallet2")
+    };
 }
 
-<div class="text-center">
-    <h1 class="display-4">Veteriner Kliniği Yönetim Sistemi</h1>
-    <p>Sahipler, hayvanlar, randevular, muayeneler, ilaçlar, aşılar ve ödemeleri bu panelden yönetebilirsiniz.</p>
+<section class="karsilama" aria-labelledby="karsilamaBaslik">
+    <span class="karsilama-pati"><partial name="_Pati" /></span>
+    <h1 id="karsilamaBaslik">Veteriner Kliniği Yönetim Sistemi</h1>
+    <p>Sahipler, hayvanlar, randevular, muayeneler, ilaçlar, aşılar ve ödemeleri tek bir panelden yönetin.</p>
+    <div class="d-flex flex-wrap gap-2">
+        <a asp-controller="Muayeneler" asp-action="Create" class="btn btn-light">
+            <i class="bi bi-plus-lg" aria-hidden="true"></i> Yeni Muayene
+        </a>
+        <a asp-controller="Sahipler" asp-action="Create" class="btn btn-outline-light">
+            <i class="bi bi-person-plus" aria-hidden="true"></i> Yeni Sahip
+        </a>
+        <a asp-controller="Odemeler" asp-action="Create" class="btn btn-outline-light">
+            <i class="bi bi-cash-coin" aria-hidden="true"></i> Ödeme Al
+        </a>
+    </div>
+</section>
+
+<h2 class="bolum-baslik">Modüller</h2>
+<div class="modul-grid">
+    @foreach (var m in moduller)
+    {
+        <a class="modul-kart" asp-controller="@m.Controller" asp-action="Index">
+            <span class="ozet-ikon" aria-hidden="true">
+                @if (m.Ikon == "pati")
+                {
+                    <partial name="_Pati" />
+                }
+                else
+                {
+                    <i class="bi @m.Ikon"></i>
+                }
+            </span>
+            <span>
+                <span class="modul-ad">@m.Baslik <i class="bi bi-arrow-right" aria-hidden="true"></i></span>
+                <span class="modul-aciklama d-block">@m.Aciklama</span>
+            </span>
+        </a>
+    }
 </div>

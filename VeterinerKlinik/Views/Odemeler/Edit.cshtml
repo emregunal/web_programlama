@@ -3,14 +3,24 @@
     ViewData["Title"] = "Ödeme Düzenle";
 }
 
-<h1>Ödeme Düzenle</h1>
+<a asp-action="Details" asp-route-id="@Model.Id" class="geri-link"><i class="bi bi-arrow-left" aria-hidden="true"></i> Makbuz #@Model.Id</a>
+<div class="sayfa-baslik">
+    <div>
+        <h1>Ödeme Düzenle</h1>
+        <p class="sayfa-aciklama">Tahsilat bilgilerini güncelleyin.</p>
+    </div>
+</div>
 <partial name="_Bildirim" />
 
-<form asp-action="Edit" method="post">
+<form asp-action="Edit" method="post" class="card form-kart">
     <input type="hidden" asp-for="Id" />
-    <partial name="_OdemeForm" model="Model" />
-    <button type="submit" class="btn btn-primary">Kaydet</button>
-    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Vazgeç</a>
+    <div class="card-body">
+        <partial name="_OdemeForm" model="Model" />
+    </div>
+    <div class="card-footer">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg" aria-hidden="true"></i> Kaydet</button>
+        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Vazgeç</a>
+    </div>
 </form>
 
 @section Scripts {

@@ -6,151 +6,224 @@
     var toplamTutar = muayeneler.Sum(m => m.GenelToplam);
     var toplamOdenen = muayeneler.Sum(m => m.OdenenToplam);
     var toplamKalan = muayeneler.Sum(m => m.KalanBorc);
+    var basHarfler = (string.Concat(Model.Ad.Take(1)) + string.Concat(Model.Soyad.Take(1))).ToUpper();
 }
 
-<h1>@Model.AdSoyad</h1>
-<partial name="_Bildirim" />
-
-<dl class="row">
-    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Telefon)</dt>
-    <dd class="col-sm-9">@Model.Telefon</dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Eposta)</dt>
-    <dd class="col-sm-9">@Model.Eposta</dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Adres)</dt>
-    <dd class="col-sm-9">@Model.Adres</dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.KayitTarihi)</dt>
-    <dd class="col-sm-9">@Model.KayitTarihi.ToString("dd.MM.yyyy")</dd>
-</dl>
-
-<div class="mb-4">
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Düzenle</a>
-    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Sil</a>
-    <a asp-action="Index" class="btn btn-secondary">Listeye Dön</a>
+<a asp-action="Index" class="geri-link"><i class="bi bi-arrow-left" aria-hidden="true"></i> Sahipler</a>
+<div class="sayfa-baslik">
+    <div class="profil">
+        <span class="avatar" aria-hidden="true">@basHarfler</span>
+        <div>
+            <h1>@Model.AdSoyad</h1>
+            <div class="etiket-satiri">
+                <span><i class="bi bi-telephone" aria-hidden="true"></i> @Model.Telefon</span>
+                @if (!string.IsNullOrWhiteSpace(Model.Eposta))
+                {
+                    <span><i class="bi bi-envelope" aria-hidden="true"></i> @Model.Eposta</span>
+                }
+                <span><i class="bi bi-calendar-event" aria-hidden="true"></i> Kayıt: @Model.KayitTarihi.ToString("dd.MM.yyyy")</span>
+            </div>
+        </div>
+    </div>
+    <div class="sayfa-eylemler">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary"><i class="bi bi-pencil-square" aria-hidden="true"></i> Düzenle</a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger"><i class="bi bi-trash3" aria-hidden="true"></i> Sil</a>
+    </div>
 </div>
 
-<h2 class="h4">Hayvanlar</h2>
-@if (!Model.Hayvanlar.Any())
-{
-    <p class="text-muted">Kayıtlı hayvan yok.</p>
-}
-else
-{
-    <table class="table table-sm">
-        <thead>
-            <tr><th>Ad</th><th>Tür</th><th>Irk</th><th>Cinsiyet</th></tr>
-        </thead>
-        <tbody>
-            @foreach (var h in Model.Hayvanlar)
-            {
-                <tr>
-                    <td>@h.Ad</td>
-                    <td>@h.Tur.GetDisplayName()</td>
-                    <td>@h.Irk</td>
-                    <td>@h.Cinsiyet.GetDisplayName()</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+<partial name="_Bildirim" />
 
-<h2 class="h4 mt-4">Muayeneler ve Borç Durumu</h2>
-@if (!muayeneler.Any())
-{
-    <p class="text-muted">Muayene kaydı yok.</p>
-}
-else
-{
-    <div class="d-flex gap-4 mb-2">
-        <div>Toplam tutar: <strong>@toplamTutar.TL()</strong></div>
-        <div>Ödenen: <strong>@toplamOdenen.TL()</strong></div>
-        <div class="@(toplamKalan > 0 ? "text-danger" : null)">Kalan borç: <strong>@toplamKalan.TL()</strong></div>
+<div class="ozet-grid">
+    <div class="ozet-kart">
+        <span class="ozet-ikon" aria-hidden="true"><partial name="_Pati" /></span>
+        <div>
+            <div class="ozet-etiket">Hayvan</div>
+            <div class="ozet-deger">@Model.Hayvanlar.Count</div>
+        </div>
     </div>
-    <table class="table table-sm align-middle">
-        <thead>
-            <tr>
-                <th>Tarih</th>
-                <th>Hayvan</th>
-                <th>Teşhis</th>
-                <th class="text-end">Toplam</th>
-                <th class="text-end">Ödenen</th>
-                <th class="text-end">Kalan</th>
-                <th>Durum</th>
-                <th>İşlemler</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var m in muayeneler)
-            {
-                <tr>
-                    <td>@m.Tarih.ToString("dd.MM.yyyy HH:mm")</td>
-                    <td>@m.Hayvan!.Ad</td>
-                    <td>@m.Teshis</td>
-                    <td class="text-end">@m.GenelToplam.TL()</td>
-                    <td class="text-end">@m.OdenenToplam.TL()</td>
-                    <td class="text-end">@m.KalanBorc.TL()</td>
-                    <td><partial name="_OdemeDurumuRozeti" model="m.OdemeDurumu" /></td>
-                    <td>
-                        <a asp-controller="Muayeneler" asp-action="Details" asp-route-id="@m.Id"
-                           class="btn btn-sm btn-outline-info">Detay</a>
-                        @if (m.KalanBorc > 0)
-                        {
-                            <a asp-controller="Odemeler" asp-action="Create" asp-route-muayeneId="@m.Id"
-                               class="btn btn-sm btn-success">Ödeme Al</a>
-                        }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+    <div class="ozet-kart">
+        <span class="ozet-ikon" aria-hidden="true"><i class="bi bi-receipt"></i></span>
+        <div>
+            <div class="ozet-etiket">Toplam tutar</div>
+            <div class="ozet-deger">@toplamTutar.TL()</div>
+        </div>
+    </div>
+    <div class="ozet-kart">
+        <span class="ozet-ikon basari" aria-hidden="true"><i class="bi bi-check2-circle"></i></span>
+        <div>
+            <div class="ozet-etiket">Ödenen</div>
+            <div class="ozet-deger">@toplamOdenen.TL()</div>
+        </div>
+    </div>
+    <div class="ozet-kart">
+        <span class="ozet-ikon @(toplamKalan > 0 ? "tehlike" : "basari")" aria-hidden="true"><i class="bi bi-hourglass-split"></i></span>
+        <div>
+            <div class="ozet-etiket">Kalan borç</div>
+            <div class="ozet-deger @(toplamKalan > 0 ? "tehlike" : null)">@toplamKalan.TL()</div>
+        </div>
+    </div>
+</div>
 
-<h2 class="h4 mt-4">Ödemeler</h2>
-@if (!Model.Odemeler.Any())
-{
-    <p class="text-muted">Ödeme kaydı yok.</p>
-}
-else
-{
-    <table class="table table-sm">
-        <thead>
-            <tr>
-                <th>Tarih</th>
-                <th>Muayene</th>
-                <th class="text-end">Tutar</th>
-                <th>Yöntem</th>
-                <th><span class="visually-hidden">İşlemler</span></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var o in Model.Odemeler)
+<div class="row g-4 mb-4">
+    <div class="col-lg-5">
+        <section class="card h-100" aria-labelledby="iletisimBaslik">
+            <div class="card-header"><h2 id="iletisimBaslik"><i class="bi bi-person-vcard" aria-hidden="true"></i> İletişim Bilgileri</h2></div>
+            <div class="card-body py-2">
+                <dl class="bilgi-listesi">
+                    <div><dt>@Html.DisplayNameFor(m => m.Telefon)</dt><dd>@Model.Telefon</dd></div>
+                    <div><dt>@Html.DisplayNameFor(m => m.Eposta)</dt><dd>@(string.IsNullOrWhiteSpace(Model.Eposta) ? "—" : Model.Eposta)</dd></div>
+                    <div><dt>@Html.DisplayNameFor(m => m.Adres)</dt><dd class="satir-korunur">@(string.IsNullOrWhiteSpace(Model.Adres) ? "—" : Model.Adres)</dd></div>
+                    <div><dt>@Html.DisplayNameFor(m => m.KayitTarihi)</dt><dd>@Model.KayitTarihi.ToString("dd.MM.yyyy")</dd></div>
+                </dl>
+            </div>
+        </section>
+    </div>
+    <div class="col-lg-7">
+        <section class="card h-100" aria-labelledby="hayvanlarBaslik">
+            <div class="card-header"><h2 id="hayvanlarBaslik"><partial name="_Pati" /> Hayvanlar</h2></div>
+            @if (!Model.Hayvanlar.Any())
             {
-                <tr>
-                    <td>@o.Tarih.ToString("dd.MM.yyyy HH:mm")</td>
-                    <td>
-                        @if (o.MuayeneId != null)
-                        {
-                            <a asp-controller="Muayeneler" asp-action="Details" asp-route-id="@o.MuayeneId">#@o.MuayeneId</a>
-                        }
-                        else
-                        {
-                            <span>—</span>
-                        }
-                    </td>
-                    <td class="text-end">@o.Tutar.TL()</td>
-                    <td>@o.Yontem.GetDisplayName()</td>
-                    <td class="text-end">
-                        <a asp-controller="Odemeler" asp-action="Details" asp-route-id="@o.Id"
-                           class="btn btn-sm btn-outline-secondary">Makbuz</a>
-                    </td>
-                </tr>
+                <div class="bos-durum">
+                    <span class="bos-durum-ikon" aria-hidden="true"><partial name="_Pati" /></span>
+                    <div class="bos-durum-baslik">Kayıtlı hayvan yok.</div>
+                </div>
             }
-        </tbody>
-        <tfoot>
-            <tr>
-                <th colspan="2">Toplam</th>
-                <th class="text-end">@odemeToplami.TL()</th>
-                <th colspan="2"></th>
-            </tr>
-        </tfoot>
-    </table>
-}
+            else
+            {
+                <div class="tablo-kart">
+                    <table class="table table-sm align-middle">
+                        <thead>
+                            <tr><th scope="col">Ad</th><th scope="col">Tür</th><th scope="col">Irk</th><th scope="col">Cinsiyet</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var h in Model.Hayvanlar)
+                            {
+                                <tr>
+                                    <td class="hucre-ana">@h.Ad</td>
+                                    <td>@h.Tur.GetDisplayName()</td>
+                                    <td>@h.Irk</td>
+                                    <td>@h.Cinsiyet.GetDisplayName()</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+    </div>
+</div>
+
+<section class="card mb-4" aria-labelledby="muayenelerBaslik">
+    <div class="card-header"><h2 id="muayenelerBaslik"><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i> Muayeneler ve Borç Durumu</h2></div>
+    @if (!muayeneler.Any())
+    {
+        <div class="bos-durum">
+            <span class="bos-durum-ikon" aria-hidden="true"><i class="bi bi-clipboard2-pulse"></i></span>
+            <div class="bos-durum-baslik">Muayene kaydı yok.</div>
+        </div>
+    }
+    else
+    {
+        <div class="tablo-kart">
+            <table class="table table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">Tarih</th>
+                        <th scope="col">Hayvan</th>
+                        <th scope="col">Teşhis</th>
+                        <th scope="col" class="text-end">Toplam</th>
+                        <th scope="col" class="text-end">Ödenen</th>
+                        <th scope="col" class="text-end">Kalan</th>
+                        <th scope="col">Durum</th>
+                        <th scope="col" class="text-end"><span class="visually-hidden">İşlemler</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var m in muayeneler)
+                    {
+                        <tr>
+                            <td class="text-nowrap">@m.Tarih.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td class="hucre-ana">@m.Hayvan!.Ad</td>
+                            <td>@m.Teshis</td>
+                            <td class="text-end tutar">@m.GenelToplam.TL()</td>
+                            <td class="text-end tutar">@m.OdenenToplam.TL()</td>
+                            <td class="text-end tutar">@m.KalanBorc.TL()</td>
+                            <td><partial name="_OdemeDurumuRozeti" model="m.OdemeDurumu" /></td>
+                            <td>
+                                <div class="islemler">
+                                    @if (m.KalanBorc > 0)
+                                    {
+                                        <a asp-controller="Odemeler" asp-action="Create" asp-route-muayeneId="@m.Id"
+                                           class="btn btn-sm btn-success"><i class="bi bi-cash-coin" aria-hidden="true"></i> Ödeme Al</a>
+                                    }
+                                    <a asp-controller="Muayeneler" asp-action="Details" asp-route-id="@m.Id"
+                                       class="btn btn-ikon" title="Detay" aria-label="Muayene #@m.Id detayı"><i class="bi bi-eye" aria-hidden="true"></i></a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+<section class="card" aria-labelledby="odemelerBaslik">
+    <div class="card-header"><h2 id="odemelerBaslik"><i class="bi bi-wallet2" aria-hidden="true"></i> Ödemeler</h2></div>
+    @if (!Model.Odemeler.Any())
+    {
+        <div class="bos-durum">
+            <span class="bos-durum-ikon" aria-hidden="true"><i class="bi bi-wallet2"></i></span>
+            <div class="bos-durum-baslik">Ödeme kaydı yok.</div>
+        </div>
+    }
+    else
+    {
+        <div class="tablo-kart">
+            <table class="table table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">Tarih</th>
+                        <th scope="col">Muayene</th>
+                        <th scope="col" class="text-end">Tutar</th>
+                        <th scope="col">Yöntem</th>
+                        <th scope="col" class="text-end"><span class="visually-hidden">İşlemler</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var o in Model.Odemeler)
+                    {
+                        <tr>
+                            <td class="text-nowrap">@o.Tarih.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>
+                                @if (o.MuayeneId != null)
+                                {
+                                    <a asp-controller="Muayeneler" asp-action="Details" asp-route-id="@o.MuayeneId">#@o.MuayeneId</a>
+                                }
+                                else
+                                {
+                                    <span>—</span>
+                                }
+                            </td>
+                            <td class="text-end tutar">@o.Tutar.TL()</td>
+                            <td>@o.Yontem.GetDisplayName()</td>
+                            <td>
+                                <div class="islemler">
+                                    <a asp-controller="Odemeler" asp-action="Details" asp-route-id="@o.Id"
+                                       class="btn btn-ikon" title="Makbuz" aria-label="Makbuz #@o.Id"><i class="bi bi-receipt" aria-hidden="true"></i></a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th scope="row" colspan="2">Toplam</th>
+                        <th class="text-end tutar">@odemeToplami.TL()</th>
+                        <th colspan="2"></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    }
+</section>

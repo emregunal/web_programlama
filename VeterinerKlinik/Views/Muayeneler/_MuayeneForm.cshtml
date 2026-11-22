@@ -5,69 +5,88 @@
     var hayvanMetni = hayvanlar.FirstOrDefault(x => x.Value == Model.HayvanId.ToString())?.Text;
 }
 
-<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
 @if (!hayvanlar.Any())
 {
-    <div class="alert alert-warning">Muayene kaydı için önce hayvan kaydı oluşturulmalıdır.</div>
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+        <div>Muayene kaydı için önce hayvan kaydı oluşturulmalıdır.</div>
+    </div>
 }
-<div class="row">
-    <div class="col-md-6 mb-3">
-        <label asp-for="HayvanId" class="form-label"></label>
-        @if (Model.RandevuId != null)
-        {
-            <div class="form-control-plaintext">@hayvanMetni</div>
-            <input type="hidden" asp-for="HayvanId" />
-            <input type="hidden" asp-for="RandevuId" />
-        }
-        else
-        {
-            <select asp-for="HayvanId" asp-items="hayvanlar" class="form-select">
-                <option value="">-- Hayvan seçin --</option>
-            </select>
-        }
-        <span asp-validation-for="HayvanId" class="text-danger"></span>
+@if (Model.RandevuId != null && ViewData["RandevuBilgi"] is string randevuBilgi)
+{
+    <div class="alert alert-info">
+        <i class="bi bi-calendar-check" aria-hidden="true"></i>
+        <div>Bağlı randevu: @randevuBilgi</div>
     </div>
-    <div class="col-md-6 mb-3">
-        <label asp-for="VeterinerId" class="form-label"></label>
-        <select asp-for="VeterinerId" asp-items="veterinerler" class="form-select">
-            <option value="">-- Veteriner seçin --</option>
-        </select>
-        <span asp-validation-for="VeterinerId" class="text-danger"></span>
-    </div>
-    @if (Model.RandevuId != null && ViewData["RandevuBilgi"] is string randevuBilgi)
-    {
-        <div class="col-12">
-            <div class="alert alert-info">Bağlı randevu: @randevuBilgi</div>
+}
+
+<fieldset class="mb-2">
+    <legend class="form-bolum">Hasta ve Hekim</legend>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="HayvanId" class="form-label"></label>
+            @if (Model.RandevuId != null)
+            {
+                <div class="form-control-plaintext">@hayvanMetni</div>
+                <input type="hidden" asp-for="HayvanId" />
+                <input type="hidden" asp-for="RandevuId" />
+            }
+            else
+            {
+                <select asp-for="HayvanId" asp-items="hayvanlar" class="form-select">
+                    <option value="">-- Hayvan seçin --</option>
+                </select>
+            }
+            <span asp-validation-for="HayvanId" class="text-danger"></span>
         </div>
-    }
-    <div class="col-md-6 mb-3">
-        <label asp-for="Tarih" class="form-label"></label>
-        <input asp-for="Tarih" asp-format="{0:yyyy-MM-ddTHH:mm}" class="form-control" />
-        <span asp-validation-for="Tarih" class="text-danger"></span>
+        <div class="col-md-6 mb-3">
+            <label asp-for="VeterinerId" class="form-label"></label>
+            <select asp-for="VeterinerId" asp-items="veterinerler" class="form-select">
+                <option value="">-- Veteriner seçin --</option>
+            </select>
+            <span asp-validation-for="VeterinerId" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="Tarih" class="form-label"></label>
+            <input asp-for="Tarih" asp-format="{0:yyyy-MM-ddTHH:mm}" class="form-control" />
+            <span asp-validation-for="Tarih" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="Ucret" class="form-label"></label>
+            <div class="input-group">
+                <input asp-for="Ucret" class="form-control" inputmode="decimal" />
+                <span class="input-group-text">₺</span>
+            </div>
+            <span asp-validation-for="Ucret" class="text-danger"></span>
+        </div>
     </div>
-    <div class="col-md-6 mb-3">
-        <label asp-for="Ucret" class="form-label"></label>
-        <input asp-for="Ucret" class="form-control" inputmode="decimal" />
-        <span asp-validation-for="Ucret" class="text-danger"></span>
+</fieldset>
+
+<hr class="my-3" />
+
+<fieldset>
+    <legend class="form-bolum">Klinik Bilgiler</legend>
+    <div class="row">
+        <div class="col-12 mb-3">
+            <label asp-for="Sikayet" class="form-label"></label>
+            <textarea asp-for="Sikayet" class="form-control" rows="2"></textarea>
+            <span asp-validation-for="Sikayet" class="text-danger"></span>
+        </div>
+        <div class="col-12 mb-3">
+            <label asp-for="Teshis" class="form-label"></label>
+            <textarea asp-for="Teshis" class="form-control" rows="2"></textarea>
+            <span asp-validation-for="Teshis" class="text-danger"></span>
+        </div>
+        <div class="col-12 mb-3">
+            <label asp-for="Tedavi" class="form-label"></label>
+            <textarea asp-for="Tedavi" class="form-control" rows="2"></textarea>
+            <span asp-validation-for="Tedavi" class="text-danger"></span>
+        </div>
+        <div class="col-12">
+            <label asp-for="Notlar" class="form-label"></label>
+            <textarea asp-for="Notlar" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="Notlar" class="text-danger"></span>
+        </div>
     </div>
-    <div class="col-12 mb-3">
-        <label asp-for="Sikayet" class="form-label"></label>
-        <textarea asp-for="Sikayet" class="form-control" rows="2"></textarea>
-        <span asp-validation-for="Sikayet" class="text-danger"></span>
-    </div>
-    <div class="col-12 mb-3">
-        <label asp-for="Teshis" class="form-label"></label>
-        <textarea asp-for="Teshis" class="form-control" rows="2"></textarea>
-        <span asp-validation-for="Teshis" class="text-danger"></span>
-    </div>
-    <div class="col-12 mb-3">
-        <label asp-for="Tedavi" class="form-label"></label>
-        <textarea asp-for="Tedavi" class="form-control" rows="2"></textarea>
-        <span asp-validation-for="Tedavi" class="text-danger"></span>
-    </div>
-    <div class="col-12 mb-3">
-        <label asp-for="Notlar" class="form-label"></label>
-        <textarea asp-for="Notlar" class="form-control" rows="3"></textarea>
-        <span asp-validation-for="Notlar" class="text-danger"></span>
-    </div>
-</div>
+</fieldset>

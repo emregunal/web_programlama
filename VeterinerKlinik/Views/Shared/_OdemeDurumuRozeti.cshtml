@@ -2,9 +2,9 @@
 @{
     var sinif = Model switch
     {
-        OdemeDurumu.Odendi => "bg-success",
-        OdemeDurumu.KismenOdendi => "bg-warning text-dark",
-        _ => "bg-danger"
+        OdemeDurumu.Odendi => "durum-odendi",
+        OdemeDurumu.KismenOdendi => "durum-kismen",
+        _ => "durum-odenmedi"
     };
 }
-<span class="badge @sinif">@Model.GetDisplayName()</span>
+<span class="badge durum-rozeti @sinif">@Model.GetDisplayName()</span>

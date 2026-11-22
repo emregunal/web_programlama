@@ -3,43 +3,38 @@
     ViewData["Title"] = "Ödeme Sil";
 }
 
-<h1>Ödeme Sil</h1>
+<a asp-action="Details" asp-route-id="@Model.Id" class="geri-link"><i class="bi bi-arrow-left" aria-hidden="true"></i> Makbuz #@Model.Id</a>
 <partial name="_Bildirim" />
 
-<p class="text-danger">
-    Bu ödemeyi silmek istediğinizden emin misiniz?
-    @if (Model.Muayene != null)
-    {
-        <text>Muayenenin kalan borcu @Model.Tutar.TL() kadar artacak.</text>
-    }
-</p>
+<div class="card silme-karti">
+    <div class="card-body">
+        <div class="silme-baslik">
+            <span class="silme-ikon" aria-hidden="true"><i class="bi bi-trash3"></i></span>
+            <div>
+                <h1 class="h3 mb-1">Ödeme Sil</h1>
+                <p class="text-secondary mb-0">
+                    Bu ödemeyi silmek istediğinizden emin misiniz?
+                    @if (Model.Muayene != null)
+                    {
+                        <text>Muayenenin kalan borcu <strong>@Model.Tutar.TL()</strong> kadar artacak.</text>
+                    }
+                </p>
+            </div>
+        </div>
 
-<dl class="row">
-    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Tarih)</dt>
-    <dd class="col-sm-9">@Model.Tarih.ToString("dd.MM.yyyy HH:mm")</dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.SahipId)</dt>
-    <dd class="col-sm-9">@Model.Sahip!.AdSoyad</dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.MuayeneId)</dt>
-    <dd class="col-sm-9">
-        @if (Model.Muayene != null)
-        {
-            <span>@Model.Muayene.KisaTanim</span>
-        }
-        else
-        {
-            <span>—</span>
-        }
-    </dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Yontem)</dt>
-    <dd class="col-sm-9">@Model.Yontem.GetDisplayName()</dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Tutar)</dt>
-    <dd class="col-sm-9">@Model.Tutar.TL()</dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Aciklama)</dt>
-    <dd class="col-sm-9">@Model.Aciklama</dd>
-</dl>
+        <dl class="bilgi-listesi mb-4">
+            <div><dt>@Html.DisplayNameFor(m => m.Tarih)</dt><dd>@Model.Tarih.ToString("dd.MM.yyyy HH:mm")</dd></div>
+            <div><dt>@Html.DisplayNameFor(m => m.SahipId)</dt><dd class="fw-bold">@Model.Sahip!.AdSoyad</dd></div>
+            <div><dt>@Html.DisplayNameFor(m => m.MuayeneId)</dt><dd>@(Model.Muayene?.KisaTanim ?? "—")</dd></div>
+            <div><dt>@Html.DisplayNameFor(m => m.Yontem)</dt><dd>@Model.Yontem.GetDisplayName()</dd></div>
+            <div><dt>@Html.DisplayNameFor(m => m.Tutar)</dt><dd class="fw-bold">@Model.Tutar.TL()</dd></div>
+            <div><dt>@Html.DisplayNameFor(m => m.Aciklama)</dt><dd>@(string.IsNullOrWhiteSpace(Model.Aciklama) ? "—" : Model.Aciklama)</dd></div>
+        </dl>
 
-<form asp-action="Delete" method="post">
-    <input type="hidden" asp-for="Id" />
-    <button type="submit" class="btn btn-danger">Sil</button>
-    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Vazgeç</a>
-</form>
+        <form asp-action="Delete" method="post" class="d-flex flex-wrap gap-2">
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-danger"><i class="bi bi-trash3" aria-hidden="true"></i> Ödemeyi Sil</button>
+            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Vazgeç</a>
+        </form>
+    </div>
+</div>

@@ -6,87 +6,100 @@
     var sira = 0;
 }
 
-<div class="d-print-none mb-3">
-    <button type="button" class="btn btn-primary" onclick="window.print()">Yazdır</button>
-    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Muayeneye Dön</a>
+<div class="belge-eylemler d-print-none">
+    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary"><i class="bi bi-arrow-left" aria-hidden="true"></i> Muayeneye Dön</a>
+    <button type="button" class="btn btn-primary" onclick="window.print()"><i class="bi bi-printer" aria-hidden="true"></i> Yazdır</button>
 </div>
 
-<div class="border rounded p-4">
-    <div class="d-flex justify-content-between align-items-start mb-4">
-        <div>
-            <h1 class="h3 mb-0">Veteriner Kliniği</h1>
-            <div class="fw-bold">REÇETE</div>
+<article class="belge">
+    <header class="belge-ust">
+        <div class="belge-marka">
+            <span class="marka-logo"><partial name="_Pati" /></span>
+            <div>
+                <h1>Veteriner Kliniği</h1>
+                <div class="belge-tur">REÇETE</div>
+            </div>
         </div>
-        <div class="text-end">
-            <div>Reçete No: @Model.Id</div>
-            <div>Tarih: @Model.Tarih.ToString("dd.MM.yyyy")</div>
+        <dl class="belge-meta">
+            <div><dt>Reçete No:</dt><dd>@Model.Id</dd></div>
+            <div><dt>Tarih:</dt><dd>@Model.Tarih.ToString("dd.MM.yyyy")</dd></div>
+        </dl>
+    </header>
+
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6">
+            <div class="belge-taraf">
+                <h2 class="belge-bolum-baslik">Hasta</h2>
+                <div><strong>@hayvan.Ad</strong></div>
+                <div>Tür: @hayvan.Tur.GetDisplayName()</div>
+                @if (!string.IsNullOrWhiteSpace(hayvan.Irk))
+                {
+                    <div>Irk: @hayvan.Irk</div>
+                }
+                <div>Cinsiyet: @hayvan.Cinsiyet.GetDisplayName()</div>
+                @if (yas != null)
+                {
+                    <div>Yaş: @yas</div>
+                }
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="belge-taraf">
+                <h2 class="belge-bolum-baslik">Sahip</h2>
+                <div><strong>@hayvan.Sahip!.AdSoyad</strong></div>
+                <div>Telefon: @hayvan.Sahip.Telefon</div>
+                <div class="mt-2">Veteriner: @Model.Veteriner!.AdSoyad</div>
+            </div>
         </div>
     </div>
 
-    <div class="row mb-3">
-        <div class="col-6">
-            <h2 class="h6 text-uppercase text-muted">Hasta</h2>
-            <div>Ad: @hayvan.Ad</div>
-            <div>Tür: @hayvan.Tur.GetDisplayName()</div>
-            @if (!string.IsNullOrWhiteSpace(hayvan.Irk))
-            {
-                <div>Irk: @hayvan.Irk</div>
-            }
-            <div>Cinsiyet: @hayvan.Cinsiyet.GetDisplayName()</div>
-            @if (yas != null)
-            {
-                <div>Yaş: @yas</div>
-            }
-        </div>
-        <div class="col-6">
-            <h2 class="h6 text-uppercase text-muted">Sahip</h2>
-            <div>@hayvan.Sahip!.AdSoyad</div>
-            <div>Telefon: @hayvan.Sahip.Telefon</div>
-        </div>
+    <div class="mb-4">
+        <h2 class="belge-bolum-baslik">Teşhis</h2>
+        <div class="satir-korunur">@Model.Teshis</div>
     </div>
 
-    <div class="mb-1"><strong>Veteriner:</strong> @Model.Veteriner!.AdSoyad</div>
-    <div class="mb-3 satir-korunur"><strong>Teşhis:</strong> @Model.Teshis</div>
-
+    <h2 class="belge-bolum-baslik">İlaçlar</h2>
     @if (!Model.ReceteKalemleri.Any())
     {
-        <p class="text-muted">Bu muayenede reçete yazılmadı.</p>
+        <p class="text-secondary">Bu muayenede reçete yazılmadı.</p>
     }
     else
     {
-        <table class="table table-bordered align-middle">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>İlaç</th>
-                    <th>Doz</th>
-                    <th>Kullanım Şekli</th>
-                    <th>Süre (gün)</th>
-                    <th>Miktar</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var k in Model.ReceteKalemleri)
-                {
-                    sira++;
+        <div class="belge-tablo">
+            <table class="table align-middle">
+                <thead>
                     <tr>
-                        <td>@sira</td>
-                        <td>@k.Ilac!.AdVeForm</td>
-                        <td>@k.Doz</td>
-                        <td>@k.KullanimSekli</td>
-                        <td>@k.SureGun</td>
-                        <td>@k.Adet @k.Ilac.Birim</td>
+                        <th scope="col">#</th>
+                        <th scope="col">İlaç</th>
+                        <th scope="col">Doz</th>
+                        <th scope="col">Kullanım Şekli</th>
+                        <th scope="col" class="text-center">Süre (gün)</th>
+                        <th scope="col">Miktar</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var k in Model.ReceteKalemleri)
+                    {
+                        sira++;
+                        <tr>
+                            <td>@sira</td>
+                            <td class="hucre-ana">@k.Ilac!.AdVeForm</td>
+                            <td>@k.Doz</td>
+                            <td>@k.KullanimSekli</td>
+                            <td class="text-center">@k.SureGun</td>
+                            <td class="text-nowrap">@k.Adet @k.Ilac.Birim</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     }
 
-    <div class="d-flex justify-content-end mt-5">
-        <div class="text-center" style="min-width: 220px;">
-            <div>Veteriner Hekim</div>
+    <div class="imza">
+        <div>
+            <div class="text-secondary">Veteriner Hekim</div>
             <div class="fw-bold">@Model.Veteriner.AdSoyad</div>
-            <div class="border-bottom mt-5"></div>
+            <div class="imza-cizgi"></div>
         </div>
     </div>
-</div>
+</article>
