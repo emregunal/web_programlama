@@ -864,19 +864,24 @@ a {
   background: currentColor;
 }
 
-.durum-odendi {
+.durum-yesil {
   background: #dcfce7;
   color: #166534;
 }
 
-.durum-kismen {
+.durum-turuncu {
   background: var(--vk-vurgu-acik);
   color: #9a3412;
 }
 
-.durum-odenmedi {
+.durum-kirmizi {
   background: #fee2e2;
   color: #991b1b;
+}
+
+.durum-gri {
+  background: #eef2f2;
+  color: var(--vk-soluk);
 }
 
 .alert {
@@ -1049,6 +1054,11 @@ a {
   color: var(--vk-birincil-koyu);
   font-family: var(--vk-font-baslik);
   font-size: 1.25rem;
+}
+
+.avatar svg {
+  width: 1.75rem;
+  height: 1.75rem;
 }
 
 .etiket-satiri {
