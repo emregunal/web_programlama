@@ -33,3 +33,9 @@ body {
 .satir-korunur {
   white-space: pre-line;
 }
+
+@media print {
+  .container {
+    max-width: none;
+  }
+}

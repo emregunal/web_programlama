@@ -1,0 +1,116 @@
+@model Muayene
+@{
+    var faturaNo = $"F{Model.Id:D6}";
+    ViewData["Title"] = "Fatura " + faturaNo;
+    var hayvan = Model.Hayvan!;
+    var sahip = hayvan.Sahip!;
+    var sira = 1;
+}
+
+<div class="d-print-none mb-3">
+    <button type="button" class="btn btn-primary" onclick="window.print()">Yazdır</button>
+    <a asp-controller="Muayeneler" asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Muayeneye Dön</a>
+    @if (Model.KalanBorc > 0)
+    {
+        <a asp-action="Create" asp-route-muayeneId="@Model.Id" class="btn btn-success">Ödeme Al</a>
+    }
+</div>
+
+<div class="border rounded p-4">
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h1 class="h3 mb-0">Veteriner Kliniği</h1>
+            <div class="fw-bold">FATURA</div>
+        </div>
+        <div class="text-end">
+            <div>Fatura No: @faturaNo</div>
+            <div>Muayene Tarihi: @Model.Tarih.ToString("dd.MM.yyyy")</div>
+            <div>Düzenlenme Tarihi: @DateTime.Now.ToString("dd.MM.yyyy HH:mm")</div>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-6">
+            <h2 class="h6 text-uppercase text-muted">Sayın</h2>
+            <div>@sahip.AdSoyad</div>
+            <div>Telefon: @sahip.Telefon</div>
+            @if (!string.IsNullOrWhiteSpace(sahip.Adres))
+            {
+                <div>Adres: @sahip.Adres</div>
+            }
+        </div>
+        <div class="col-6">
+            <h2 class="h6 text-uppercase text-muted">Hasta</h2>
+            <div>@hayvan.Ad (@hayvan.Tur.GetDisplayName())</div>
+            <div>Veteriner: @Model.Veteriner!.AdSoyad</div>
+        </div>
+    </div>
+
+    <table class="table table-bordered align-middle">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Açıklama</th>
+                <th>Miktar</th>
+                <th class="text-end">Birim Fiyat</th>
+                <th class="text-end">Tutar</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>Muayene ücreti</td>
+                <td>1</td>
+                <td class="text-end">@Model.Ucret.TL()</td>
+                <td class="text-end">@Model.Ucret.TL()</td>
+            </tr>
+            @foreach (var k in Model.ReceteKalemleri)
+            {
+                sira++;
+                <tr>
+                    <td>@sira</td>
+                    <td>@k.Ilac!.AdVeForm</td>
+                    <td>@k.Adet @k.Ilac.Birim</td>
+                    <td class="text-end">@k.BirimFiyat.TL()</td>
+                    <td class="text-end">@k.Tutar.TL()</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="4">Genel Toplam</th>
+                <th class="text-end">@Model.GenelToplam.TL()</th>
+            </tr>
+        </tfoot>
+    </table>
+
+    @if (Model.Odemeler.Any())
+    {
+        <h2 class="h6 text-uppercase text-muted">Ödemeler</h2>
+        <table class="table table-sm table-bordered w-auto">
+            <thead>
+                <tr>
+                    <th>Tarih</th>
+                    <th>Yöntem</th>
+                    <th class="text-end">Tutar</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var o in Model.Odemeler)
+                {
+                    <tr>
+                        <td>@o.Tarih.ToString("dd.MM.yyyy")</td>
+                        <td>@o.Yontem.GetDisplayName()</td>
+                        <td class="text-end">@o.Tutar.TL()</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    <div class="text-end">
+        <div>Ödenen: @Model.OdenenToplam.TL()</div>
+        <div class="fw-bold">Kalan borç: @Model.KalanBorc.TL()</div>
+        <div>Durum: @Model.OdemeDurumu.GetDisplayName()</div>
+    </div>
+</div>

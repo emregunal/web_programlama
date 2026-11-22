@@ -1,0 +1,48 @@
+@model Odeme
+@{
+    var muayeneler = ViewData["Muayeneler"] as SelectList;
+}
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="row">
+    <div class="col-12 mb-3">
+        @if (ViewData["MuayeneBilgi"] is string bilgi)
+        {
+            <div class="form-label">@Html.DisplayNameFor(m => m.MuayeneId)</div>
+            <div class="form-control-plaintext" id="MuayeneId">@bilgi</div>
+            <span asp-validation-for="MuayeneId" class="text-danger"></span>
+        }
+        else
+        {
+            if (muayeneler != null && !muayeneler.Any())
+            {
+                <div class="alert alert-warning">Ödemesi beklenen muayene yok.</div>
+            }
+            <label asp-for="MuayeneId" class="form-label"></label>
+            <select asp-for="MuayeneId" asp-items="muayeneler" class="form-select" data-val="true" data-val-required="Muayene seçin.">
+                <option value="">-- Muayene seçin --</option>
+            </select>
+            <span asp-validation-for="MuayeneId" class="text-danger"></span>
+        }
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Tutar" class="form-label"></label>
+        <input asp-for="Tutar" class="form-control" inputmode="decimal" />
+        <span asp-validation-for="Tutar" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Tarih" class="form-label"></label>
+        <input asp-for="Tarih" asp-format="{0:yyyy-MM-ddTHH:mm}" class="form-control" />
+        <span asp-validation-for="Tarih" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Yontem" class="form-label"></label>
+        <select asp-for="Yontem" asp-items="Html.GetEnumSelectList<OdemeYontemi>()" class="form-select"></select>
+        <span asp-validation-for="Yontem" class="text-danger"></span>
+    </div>
+    <div class="col-12 mb-3">
+        <label asp-for="Aciklama" class="form-label"></label>
+        <textarea asp-for="Aciklama" class="form-control" rows="2"></textarea>
+        <span asp-validation-for="Aciklama" class="text-danger"></span>
+    </div>
+</div>

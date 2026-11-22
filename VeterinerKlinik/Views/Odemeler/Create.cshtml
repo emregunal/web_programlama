@@ -1,0 +1,24 @@
+@model Odeme
+@{
+    ViewData["Title"] = "Yeni Ödeme";
+}
+
+<h1>Yeni Ödeme</h1>
+<partial name="_Bildirim" />
+
+<form asp-action="Create" method="post">
+    <partial name="_OdemeForm" model="Model" />
+    <button type="submit" class="btn btn-primary">Kaydet</button>
+    @if (Model.MuayeneId != null)
+    {
+        <a asp-controller="Muayeneler" asp-action="Details" asp-route-id="@Model.MuayeneId" class="btn btn-secondary">Vazgeç</a>
+    }
+    else
+    {
+        <a asp-action="Index" class="btn btn-secondary">Vazgeç</a>
+    }
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

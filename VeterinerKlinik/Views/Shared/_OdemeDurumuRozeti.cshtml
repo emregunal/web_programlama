@@ -1,0 +1,10 @@
+@model OdemeDurumu
+@{
+    var sinif = Model switch
+    {
+        OdemeDurumu.Odendi => "bg-success",
+        OdemeDurumu.KismenOdendi => "bg-warning text-dark",
+        _ => "bg-danger"
+    };
+}
+<span class="badge @sinif">@Model.GetDisplayName()</span>

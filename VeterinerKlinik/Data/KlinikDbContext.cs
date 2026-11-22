@@ -68,7 +68,7 @@ public class KlinikDbContext : DbContext
             .HasOne(o => o.Sahip).WithMany(s => s.Odemeler)
             .HasForeignKey(o => o.SahipId).OnDelete(DeleteBehavior.Restrict);
         b.Entity<Odeme>()
-            .HasOne(o => o.Muayene).WithMany()
+            .HasOne(o => o.Muayene).WithMany(m => m.Odemeler)
             .HasForeignKey(o => o.MuayeneId).OnDelete(DeleteBehavior.SetNull);
 
         b.Entity<Veteriner>().HasData(

@@ -32,3 +32,10 @@ public enum OdemeYontemi
     [Display(Name = "Kredi Kartı")] KrediKarti,
     [Display(Name = "Havale")] Havale
 }
+
+public enum OdemeDurumu
+{
+    [Display(Name = "Ödenmedi")] Odenmedi,
+    [Display(Name = "Kısmen Ödendi")] KismenOdendi,
+    [Display(Name = "Ödendi")] Odendi
+}
