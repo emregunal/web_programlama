@@ -1,0 +1,27 @@
+@model Hayvan
+@{
+    ViewData["Title"] = "Yeni Hayvan";
+}
+
+<a asp-action="Index" class="geri-link"><i class="bi bi-arrow-left" aria-hidden="true"></i> Hayvanlar</a>
+<div class="sayfa-baslik">
+    <div>
+        <h1>Yeni Hayvan</h1>
+        <p class="sayfa-aciklama">Yeni bir hasta kaydı oluşturun.</p>
+    </div>
+</div>
+<partial name="_Bildirim" />
+
+<form asp-action="Create" method="post" class="card form-kart">
+    <div class="card-body">
+        <partial name="_HayvanForm" model="Model" />
+    </div>
+    <div class="card-footer">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg" aria-hidden="true"></i> Kaydet</button>
+        <a asp-action="Index" class="btn btn-secondary">Vazgeç</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

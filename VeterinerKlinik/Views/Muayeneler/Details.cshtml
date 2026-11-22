@@ -33,7 +33,7 @@
             <div class="card-header"><h2 id="bilgiBaslik"><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i> Muayene Bilgileri</h2></div>
             <div class="card-body py-2">
                 <dl class="bilgi-listesi">
-                    <div><dt>@Html.DisplayNameFor(x => x.Muayene.HayvanId)</dt><dd class="fw-bold">@hayvan.Ad (@hayvan.Tur.GetDisplayName())</dd></div>
+                    <div><dt>@Html.DisplayNameFor(x => x.Muayene.HayvanId)</dt><dd><a asp-controller="Hayvanlar" asp-action="Details" asp-route-id="@hayvan.Id" class="fw-bold text-decoration-none">@hayvan.Ad</a> (@hayvan.Tur.GetDisplayName())</dd></div>
                     <div><dt>@Html.DisplayNameFor(x => x.Muayene.Hayvan!.Irk)</dt><dd>@(string.IsNullOrWhiteSpace(hayvan.Irk) ? "—" : hayvan.Irk)</dd></div>
                     <div>
                         <dt>@Html.DisplayNameFor(x => x.Muayene.Hayvan!.SahipId)</dt>

@@ -1,0 +1,11 @@
+@model AsiDurumu
+@{
+    var sinif = Model switch
+    {
+        AsiDurumu.Gecikmis => "durum-kirmizi",
+        AsiDurumu.Yaklasan => "durum-turuncu",
+        AsiDurumu.Guncel => "durum-yesil",
+        _ => "durum-gri"
+    };
+}
+<span class="badge durum-rozeti @sinif">@Model.GetDisplayName()</span>

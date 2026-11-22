@@ -1,0 +1,33 @@
+@model AsiKaydi
+@{
+    ViewData["Title"] = "Aşı Kaydı Sil";
+}
+
+<a asp-controller="Hayvanlar" asp-action="Details" asp-route-id="@Model.HayvanId" class="geri-link"><i class="bi bi-arrow-left" aria-hidden="true"></i> Hayvan detayı</a>
+<partial name="_Bildirim" />
+
+<div class="card silme-karti">
+    <div class="card-body">
+        <div class="silme-baslik">
+            <span class="silme-ikon" aria-hidden="true"><i class="bi bi-trash3"></i></span>
+            <div>
+                <h1 class="h3 mb-1">Aşı Kaydı Sil</h1>
+                <p class="text-secondary mb-0">Bu aşı kaydını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.</p>
+            </div>
+        </div>
+
+        <dl class="bilgi-listesi mb-4">
+            <div><dt>@Html.DisplayNameFor(m => m.HayvanId)</dt><dd class="fw-bold">@Model.Hayvan!.Ad (@Model.Hayvan.Sahip!.AdSoyad)</dd></div>
+            <div><dt>@Html.DisplayNameFor(m => m.AsiId)</dt><dd>@Model.Asi!.Ad</dd></div>
+            <div><dt>@Html.DisplayNameFor(m => m.UygulamaTarihi)</dt><dd>@Model.UygulamaTarihi.ToString("dd.MM.yyyy")</dd></div>
+            <div><dt>@Html.DisplayNameFor(m => m.SonrakiTarih)</dt><dd>@(Model.SonrakiTarih?.ToString("dd.MM.yyyy") ?? "—")</dd></div>
+            <div><dt>@Html.DisplayNameFor(m => m.VeterinerId)</dt><dd>@(Model.Veteriner?.AdSoyad ?? "—")</dd></div>
+        </dl>
+
+        <form asp-action="Delete" method="post" class="d-flex flex-wrap gap-2">
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-danger"><i class="bi bi-trash3" aria-hidden="true"></i> Kaydı Sil</button>
+            <a asp-controller="Hayvanlar" asp-action="Details" asp-route-id="@Model.HayvanId" class="btn btn-secondary">Vazgeç</a>
+        </form>
+    </div>
+</div>

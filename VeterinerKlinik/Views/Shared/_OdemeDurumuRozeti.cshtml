@@ -2,9 +2,9 @@
 @{
     var sinif = Model switch
     {
-        OdemeDurumu.Odendi => "durum-odendi",
-        OdemeDurumu.KismenOdendi => "durum-kismen",
-        _ => "durum-odenmedi"
+        OdemeDurumu.Odendi => "durum-yesil",
+        OdemeDurumu.KismenOdendi => "durum-turuncu",
+        _ => "durum-kirmizi"
     };
 }
 <span class="badge durum-rozeti @sinif">@Model.GetDisplayName()</span>

@@ -1,0 +1,49 @@
+@model AsiKaydi
+@{
+    var hayvanlar = (SelectList)ViewData["Hayvanlar"]!;
+    var asilar = (SelectList)ViewData["Asilar"]!;
+    var veterinerler = (SelectList)ViewData["Veterinerler"]!;
+}
+
+<div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+@if (!hayvanlar.Any())
+{
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+        <div>Aşı kaydı için önce <a asp-controller="Hayvanlar" asp-action="Create">hayvan kaydı</a> oluşturulmalıdır.</div>
+    </div>
+}
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label asp-for="HayvanId" class="form-label"></label>
+        <select asp-for="HayvanId" asp-items="hayvanlar" class="form-select" data-val="true" data-val-required="Hayvan seçin.">
+            <option value="">-- Hayvan seçin --</option>
+        </select>
+        <span asp-validation-for="HayvanId" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="AsiId" class="form-label"></label>
+        <select asp-for="AsiId" asp-items="asilar" class="form-select" data-val="true" data-val-required="Aşı seçin.">
+            <option value="">-- Aşı seçin --</option>
+        </select>
+        <span asp-validation-for="AsiId" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="UygulamaTarihi" class="form-label"></label>
+        <input asp-for="UygulamaTarihi" class="form-control" />
+        <span asp-validation-for="UygulamaTarihi" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="SonrakiTarih" class="form-label"></label>
+        <input asp-for="SonrakiTarih" class="form-control" aria-describedby="sonrakiTarihYardim" />
+        <div id="sonrakiTarihYardim" class="form-text">Boş bırakılırsa aşının tekrar aralığına göre hesaplanır.</div>
+        <span asp-validation-for="SonrakiTarih" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="VeterinerId" class="form-label"></label>
+        <select asp-for="VeterinerId" asp-items="veterinerler" class="form-select">
+            <option value="">-- Belirtilmedi --</option>
+        </select>
+        <span asp-validation-for="VeterinerId" class="text-danger"></span>
+    </div>
+</div>

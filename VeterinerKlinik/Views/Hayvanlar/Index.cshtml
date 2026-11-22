@@ -1,0 +1,109 @@
+@model IEnumerable<HayvanListeOgesi>
+@{
+    ViewData["Title"] = "Hayvanlar";
+    var arama = ViewData["Arama"] as string;
+    var turler = (List<SelectListItem>)ViewData["Turler"]!;
+    var filtreVar = Context.Request.Query.Any(q => !string.IsNullOrEmpty(q.Value));
+}
+
+<div class="sayfa-baslik">
+    <div>
+        <h1>Hayvanlar</h1>
+        <p class="sayfa-aciklama">Hasta kayıtları, sahip bilgileri ve muayene geçmişi.</p>
+    </div>
+    <div class="sayfa-eylemler">
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg" aria-hidden="true"></i> Yeni Hayvan
+        </a>
+    </div>
+</div>
+
+<partial name="_Bildirim" />
+
+<form method="get" asp-action="Index" class="filtre row g-2 align-items-end" role="search">
+    <div class="col-12 col-md">
+        <label for="filtreArama" class="form-label">Arama</label>
+        <div class="arama-kutusu">
+            <i class="bi bi-search" aria-hidden="true"></i>
+            <input type="search" id="filtreArama" name="arama" value="@arama" class="form-control"
+                   placeholder="Hayvan adı, ırk veya sahip ara" />
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <label for="filtreTur" class="form-label">Tür</label>
+        <select id="filtreTur" name="tur" asp-items="turler" class="form-select">
+            <option value="">Tümü</option>
+        </select>
+    </div>
+    <div class="col-sm-6 col-md-auto d-flex gap-2 justify-content-end">
+        @if (filtreVar)
+        {
+            <a asp-action="Index" class="btn btn-outline-secondary">Temizle</a>
+        }
+        <button type="submit" class="btn btn-outline-primary"><i class="bi bi-funnel" aria-hidden="true"></i> Filtrele</button>
+    </div>
+</form>
+
+<div class="tablo-kart">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th scope="col">Ad</th>
+                <th scope="col">Tür / Irk</th>
+                <th scope="col">Cinsiyet</th>
+                <th scope="col">Yaş</th>
+                <th scope="col">Sahip</th>
+                <th scope="col" class="text-center">Muayene</th>
+                <th scope="col" class="text-end"><span class="visually-hidden">İşlemler</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var h in Model)
+            {
+                <tr>
+                    <td><a asp-action="Details" asp-route-id="@h.Id" class="hucre-ana">@h.Ad</a></td>
+                    <td>
+                        @h.Tur.GetDisplayName()
+                        @if (!string.IsNullOrWhiteSpace(h.Irk))
+                        {
+                            <span class="hucre-alt">@h.Irk</span>
+                        }
+                    </td>
+                    <td>@h.Cinsiyet.GetDisplayName()</td>
+                    <td class="text-nowrap">@(h.DogumTarihi is DateTime dogum ? TarihHelper.YasMetni(dogum, DateTime.Today) : "—")</td>
+                    <td><a asp-controller="Sahipler" asp-action="Details" asp-route-id="@h.SahipId">@h.SahipAdSoyad</a></td>
+                    <td class="text-center">@h.MuayeneSayisi</td>
+                    <td>
+                        <div class="islemler">
+                            <a asp-action="Details" asp-route-id="@h.Id" class="btn btn-ikon" title="Detay" aria-label="@h.Ad detayı"><i class="bi bi-eye" aria-hidden="true"></i></a>
+                            <a asp-action="Edit" asp-route-id="@h.Id" class="btn btn-ikon" title="Düzenle" aria-label="@h.Ad düzenle"><i class="bi bi-pencil-square" aria-hidden="true"></i></a>
+                            <a asp-action="Delete" asp-route-id="@h.Id" class="btn btn-ikon tehlike" title="Sil" aria-label="@h.Ad sil"><i class="bi bi-trash3" aria-hidden="true"></i></a>
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="7">
+                        <div class="bos-durum">
+                            <span class="bos-durum-ikon" aria-hidden="true"><partial name="_Pati" /></span>
+                            @if (filtreVar)
+                            {
+                                <div class="bos-durum-baslik">Filtrelere uyan hayvan bulunamadı.</div>
+                                <p>Farklı bir arama veya tür ile tekrar deneyin.</p>
+                                <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Filtreleri temizle</a>
+                            }
+                            else
+                            {
+                                <div class="bos-durum-baslik">Henüz hayvan kaydı yok.</div>
+                                <p>İlk hayvan kaydını oluşturarak başlayın.</p>
+                                <a asp-action="Create" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg" aria-hidden="true"></i> Yeni Hayvan</a>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

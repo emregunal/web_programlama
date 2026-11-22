@@ -1,0 +1,55 @@
+@model Hayvan
+@{
+    ViewData["Title"] = "Hayvan Sil";
+    var muayeneSayisi = (int)(ViewData["MuayeneSayisi"] ?? 0);
+    var randevuSayisi = (int)(ViewData["RandevuSayisi"] ?? 0);
+    var asiSayisi = (int)(ViewData["AsiSayisi"] ?? 0);
+    var silinebilir = muayeneSayisi == 0 && randevuSayisi == 0 && asiSayisi == 0;
+}
+
+<a asp-action="Details" asp-route-id="@Model.Id" class="geri-link"><i class="bi bi-arrow-left" aria-hidden="true"></i> Hayvan detayı</a>
+<partial name="_Bildirim" />
+
+<div class="card silme-karti">
+    <div class="card-body">
+        <div class="silme-baslik">
+            @if (silinebilir)
+            {
+                <span class="silme-ikon" aria-hidden="true"><i class="bi bi-trash3"></i></span>
+                <div>
+                    <h1 class="h3 mb-1">Hayvan Sil</h1>
+                    <p class="text-secondary mb-0">Bu hayvanı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.</p>
+                </div>
+            }
+            else
+            {
+                <span class="silme-ikon uyari" aria-hidden="true"><i class="bi bi-exclamation-triangle"></i></span>
+                <div>
+                    <h1 class="h3 mb-1">Hayvan Silinemez</h1>
+                    <p class="text-secondary mb-0">Bu hayvana ait muayene, randevu veya aşı kaydı olduğu için silinemez.</p>
+                </div>
+            }
+        </div>
+
+        <dl class="bilgi-listesi mb-4">
+            <div><dt>@Html.DisplayNameFor(m => m.Ad)</dt><dd class="fw-bold">@Model.Ad (@Model.Tur.GetDisplayName())</dd></div>
+            <div><dt>@Html.DisplayNameFor(m => m.SahipId)</dt><dd>@Model.Sahip!.AdSoyad</dd></div>
+            <div><dt>Muayene Sayısı</dt><dd>@muayeneSayisi</dd></div>
+            <div><dt>Randevu Sayısı</dt><dd>@randevuSayisi</dd></div>
+            <div><dt>Aşı Kaydı Sayısı</dt><dd>@asiSayisi</dd></div>
+        </dl>
+
+        @if (silinebilir)
+        {
+            <form asp-action="Delete" method="post" class="d-flex flex-wrap gap-2">
+                <input type="hidden" asp-for="Id" />
+                <button type="submit" class="btn btn-danger"><i class="bi bi-trash3" aria-hidden="true"></i> Hayvanı Sil</button>
+                <a asp-action="Index" class="btn btn-secondary">Vazgeç</a>
+            </form>
+        }
+        else
+        {
+            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Geri Dön</a>
+        }
+    </div>
+</div>

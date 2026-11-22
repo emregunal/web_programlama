@@ -39,3 +39,12 @@ public enum OdemeDurumu
     [Display(Name = "Kısmen Ödendi")] KismenOdendi,
     [Display(Name = "Ödendi")] Odendi
 }
+
+public enum AsiDurumu
+{
+    [Display(Name = "Gecikmiş")] Gecikmis,
+    [Display(Name = "Yaklaşıyor")] Yaklasan,
+    [Display(Name = "Güncel")] Guncel,
+    [Display(Name = "Takip Yok")] TakipYok,
+    [Display(Name = "Yenilendi")] Yenilendi
+}

@@ -1,0 +1,41 @@
+@model AsiKaydi
+@{
+    ViewData["Title"] = "Yeni Aşı Kaydı";
+}
+
+@if (Model.HayvanId != 0)
+{
+    <a asp-controller="Hayvanlar" asp-action="Details" asp-route-id="@Model.HayvanId" class="geri-link"><i class="bi bi-arrow-left" aria-hidden="true"></i> Hayvan detayı</a>
+}
+else
+{
+    <a asp-action="Index" class="geri-link"><i class="bi bi-arrow-left" aria-hidden="true"></i> Aşılar</a>
+}
+<div class="sayfa-baslik">
+    <div>
+        <h1>Yeni Aşı Kaydı</h1>
+        <p class="sayfa-aciklama">Uygulanan aşıyı kaydedin; sonraki tarih takvime eklenir.</p>
+    </div>
+</div>
+<partial name="_Bildirim" />
+
+<form asp-action="Create" method="post" class="card form-kart">
+    <div class="card-body">
+        <partial name="_AsiKaydiForm" model="Model" />
+    </div>
+    <div class="card-footer">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg" aria-hidden="true"></i> Kaydet</button>
+        @if (Model.HayvanId != 0)
+        {
+            <a asp-controller="Hayvanlar" asp-action="Details" asp-route-id="@Model.HayvanId" class="btn btn-secondary">Vazgeç</a>
+        }
+        else
+        {
+            <a asp-action="Index" class="btn btn-secondary">Vazgeç</a>
+        }
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

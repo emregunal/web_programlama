@@ -1,0 +1,60 @@
+@model Hayvan
+@{
+    var sahipler = (SelectList)ViewData["Sahipler"]!;
+}
+
+<div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+@if (!sahipler.Any())
+{
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+        <div>Hayvan kaydı için önce <a asp-controller="Sahipler" asp-action="Create">sahip kaydı</a> oluşturulmalıdır.</div>
+    </div>
+}
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label asp-for="SahipId" class="form-label"></label>
+        <select asp-for="SahipId" asp-items="sahipler" class="form-select" data-val="true" data-val-required="Sahip seçin.">
+            <option value="">-- Sahip seçin --</option>
+        </select>
+        <span asp-validation-for="SahipId" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Ad" class="form-label"></label>
+        <input asp-for="Ad" class="form-control" placeholder="ör. Pamuk" />
+        <span asp-validation-for="Ad" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Tur" class="form-label"></label>
+        <select asp-for="Tur" asp-items="Html.GetEnumSelectList<HayvanTuru>()" class="form-select"></select>
+        <span asp-validation-for="Tur" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Irk" class="form-label"></label>
+        <input asp-for="Irk" class="form-control" placeholder="ör. Tekir, Golden Retriever" />
+        <span asp-validation-for="Irk" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="Cinsiyet" class="form-label"></label>
+        <select asp-for="Cinsiyet" asp-items="Html.GetEnumSelectList<Cinsiyet>()" class="form-select"></select>
+        <span asp-validation-for="Cinsiyet" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="DogumTarihi" class="form-label"></label>
+        <input asp-for="DogumTarihi" class="form-control" />
+        <span asp-validation-for="DogumTarihi" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="Kilo" class="form-label"></label>
+        <div class="input-group">
+            <input asp-for="Kilo" class="form-control" inputmode="decimal" />
+            <span class="input-group-text">kg</span>
+        </div>
+        <span asp-validation-for="Kilo" class="text-danger"></span>
+    </div>
+    <div class="col-12">
+        <label asp-for="Notlar" class="form-label"></label>
+        <textarea asp-for="Notlar" class="form-control" rows="3" placeholder="Alerji, kronik rahatsızlık vb."></textarea>
+        <span asp-validation-for="Notlar" class="text-danger"></span>
+    </div>
+</div>
