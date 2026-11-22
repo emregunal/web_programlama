@@ -7,201 +7,216 @@
     ViewData["Title"] = "Muayene #" + m.Id;
 }
 
-<h1>Muayene #@m.Id</h1>
-<partial name="_Bildirim" />
-
-<dl class="row">
-    <dt class="col-sm-3">@Html.DisplayNameFor(x => x.Muayene.Tarih)</dt>
-    <dd class="col-sm-9">@m.Tarih.ToString("dd.MM.yyyy HH:mm")</dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(x => x.Muayene.HayvanId)</dt>
-    <dd class="col-sm-9">@hayvan.Ad (@hayvan.Tur.GetDisplayName())</dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(x => x.Muayene.Hayvan!.Irk)</dt>
-    <dd class="col-sm-9">@hayvan.Irk</dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(x => x.Muayene.Hayvan!.SahipId)</dt>
-    <dd class="col-sm-9">
-        <a asp-controller="Sahipler" asp-action="Details" asp-route-id="@hayvan.SahipId">@sahip.AdSoyad</a> - @sahip.Telefon
-    </dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(x => x.Muayene.VeterinerId)</dt>
-    <dd class="col-sm-9">@m.Veteriner!.AdSoyad</dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(x => x.Muayene.RandevuId)</dt>
-    <dd class="col-sm-9">@(m.Randevu?.Baslangic.ToString("dd.MM.yyyy HH:mm") ?? "—")</dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(x => x.Muayene.Sikayet)</dt>
-    <dd class="col-sm-9 satir-korunur">@m.Sikayet</dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(x => x.Muayene.Teshis)</dt>
-    <dd class="col-sm-9 satir-korunur">@m.Teshis</dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(x => x.Muayene.Tedavi)</dt>
-    <dd class="col-sm-9 satir-korunur">@m.Tedavi</dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(x => x.Muayene.Notlar)</dt>
-    <dd class="col-sm-9 satir-korunur">@m.Notlar</dd>
-</dl>
-
-<div class="mb-4">
-    <a asp-action="Edit" asp-route-id="@m.Id" class="btn btn-primary">Düzenle</a>
-    <a asp-action="Delete" asp-route-id="@m.Id" class="btn btn-danger">Sil</a>
-    <a asp-action="Recete" asp-route-id="@m.Id" class="btn btn-outline-secondary">Reçete Yazdır</a>
-    <a asp-controller="Odemeler" asp-action="Fatura" asp-route-id="@m.Id" class="btn btn-outline-secondary">Fatura</a>
-    @if (m.KalanBorc > 0)
-    {
-        <a asp-controller="Odemeler" asp-action="Create" asp-route-muayeneId="@m.Id" class="btn btn-success">Ödeme Al</a>
-    }
-    <a asp-action="Index" class="btn btn-secondary">Listeye Dön</a>
+<a asp-action="Index" class="geri-link"><i class="bi bi-arrow-left" aria-hidden="true"></i> Muayeneler</a>
+<div class="sayfa-baslik">
+    <div>
+        <h1>Muayene #@m.Id</h1>
+        <div class="etiket-satiri">
+            <span><partial name="_Pati" /> @hayvan.Ad (@hayvan.Tur.GetDisplayName())</span>
+            <span><i class="bi bi-calendar-event" aria-hidden="true"></i> @m.Tarih.ToString("dd.MM.yyyy HH:mm")</span>
+            <partial name="_OdemeDurumuRozeti" model="m.OdemeDurumu" />
+        </div>
+    </div>
+    <div class="sayfa-eylemler">
+        <a asp-action="Edit" asp-route-id="@m.Id" class="btn btn-primary"><i class="bi bi-pencil-square" aria-hidden="true"></i> Düzenle</a>
+        <a asp-action="Recete" asp-route-id="@m.Id" class="btn btn-secondary"><i class="bi bi-prescription2" aria-hidden="true"></i> Reçete</a>
+        <a asp-controller="Odemeler" asp-action="Fatura" asp-route-id="@m.Id" class="btn btn-secondary"><i class="bi bi-file-earmark-text" aria-hidden="true"></i> Fatura</a>
+        <a asp-action="Delete" asp-route-id="@m.Id" class="btn btn-outline-danger"><i class="bi bi-trash3" aria-hidden="true"></i> Sil</a>
+    </div>
 </div>
 
-<h2 id="recete" class="h4">Reçete</h2>
-@if (!m.ReceteKalemleri.Any())
-{
-    <p class="text-muted">Reçeteye ilaç eklenmedi.</p>
-}
-else
-{
-    <table class="table table-sm align-middle">
-        <thead>
-            <tr>
-                <th>İlaç</th>
-                <th>Doz</th>
-                <th>Kullanım Şekli</th>
-                <th>Süre (gün)</th>
-                <th>Miktar</th>
-                <th class="text-end">Birim Fiyat</th>
-                <th class="text-end">Tutar</th>
-                <th><span class="visually-hidden">İşlemler</span></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var k in m.ReceteKalemleri)
-            {
-                <tr>
-                    <td>@k.Ilac!.AdVeForm</td>
-                    <td>@k.Doz</td>
-                    <td>@k.KullanimSekli</td>
-                    <td>@k.SureGun</td>
-                    <td>@k.Adet @k.Ilac.Birim</td>
-                    <td class="text-end">@k.BirimFiyat.TL()</td>
-                    <td class="text-end">@k.Tutar.TL()</td>
-                    <td class="text-end">
-                        <form asp-action="ReceteKalemiSil" asp-route-id="@k.Id" method="post" class="d-inline">
-                            <button type="submit"
-                                    class="btn btn-sm btn-outline-danger"
-                                    onclick="return confirm('Bu ilacı reçeteden çıkarmak istiyor musunuz?');">Çıkar</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+<partial name="_Bildirim" />
 
-<div class="card mb-4" id="ilac-ekle">
-    <div class="card-header">İlaç Ekle</div>
-    <div class="card-body">
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <section class="card h-100" aria-labelledby="bilgiBaslik">
+            <div class="card-header"><h2 id="bilgiBaslik"><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i> Muayene Bilgileri</h2></div>
+            <div class="card-body py-2">
+                <dl class="bilgi-listesi">
+                    <div><dt>@Html.DisplayNameFor(x => x.Muayene.HayvanId)</dt><dd class="fw-bold">@hayvan.Ad (@hayvan.Tur.GetDisplayName())</dd></div>
+                    <div><dt>@Html.DisplayNameFor(x => x.Muayene.Hayvan!.Irk)</dt><dd>@(string.IsNullOrWhiteSpace(hayvan.Irk) ? "—" : hayvan.Irk)</dd></div>
+                    <div>
+                        <dt>@Html.DisplayNameFor(x => x.Muayene.Hayvan!.SahipId)</dt>
+                        <dd><a asp-controller="Sahipler" asp-action="Details" asp-route-id="@hayvan.SahipId" class="fw-bold text-decoration-none">@sahip.AdSoyad</a> · @sahip.Telefon</dd>
+                    </div>
+                    <div><dt>@Html.DisplayNameFor(x => x.Muayene.VeterinerId)</dt><dd>@m.Veteriner!.AdSoyad</dd></div>
+                    <div><dt>@Html.DisplayNameFor(x => x.Muayene.RandevuId)</dt><dd>@(m.Randevu?.Baslangic.ToString("dd.MM.yyyy HH:mm") ?? "—")</dd></div>
+                    <div><dt>@Html.DisplayNameFor(x => x.Muayene.Sikayet)</dt><dd class="satir-korunur">@m.Sikayet</dd></div>
+                    <div><dt>@Html.DisplayNameFor(x => x.Muayene.Teshis)</dt><dd class="satir-korunur">@m.Teshis</dd></div>
+                    <div><dt>@Html.DisplayNameFor(x => x.Muayene.Tedavi)</dt><dd class="satir-korunur">@m.Tedavi</dd></div>
+                    <div><dt>@Html.DisplayNameFor(x => x.Muayene.Notlar)</dt><dd class="satir-korunur">@(string.IsNullOrWhiteSpace(m.Notlar) ? "—" : m.Notlar)</dd></div>
+                </dl>
+            </div>
+        </section>
+    </div>
+    <div class="col-lg-4">
+        <section class="card h-100" aria-labelledby="hesapBaslik">
+            <div class="card-header"><h2 id="hesapBaslik"><i class="bi bi-receipt" aria-hidden="true"></i> Hesap Özeti</h2></div>
+            <div class="card-body">
+                <dl class="toplam-tablosu">
+                    <div><dt>Muayene ücreti</dt><dd>@m.Ucret.TL()</dd></div>
+                    <div><dt>İlaç toplamı</dt><dd>@m.IlacToplami.TL()</dd></div>
+                    <div class="ayrac"><dt>Genel toplam</dt><dd>@m.GenelToplam.TL()</dd></div>
+                    <div><dt>Ödenen</dt><dd>@m.OdenenToplam.TL()</dd></div>
+                    <div class="ayrac">
+                        <dt>Kalan borç</dt>
+                        <dd class="@(m.KalanBorc > 0 ? "text-danger" : null)">@m.KalanBorc.TL()</dd>
+                    </div>
+                </dl>
+                @if (m.KalanBorc > 0)
+                {
+                    <a asp-controller="Odemeler" asp-action="Create" asp-route-muayeneId="@m.Id" class="btn btn-success w-100 mt-3"><i class="bi bi-cash-coin" aria-hidden="true"></i> Ödeme Al</a>
+                }
+            </div>
+        </section>
+    </div>
+</div>
+
+<section class="card mb-4" aria-labelledby="recete">
+    <div class="card-header">
+        <h2 id="recete"><i class="bi bi-prescription2" aria-hidden="true"></i> Reçete</h2>
+        @if (m.ReceteKalemleri.Any())
+        {
+            <a asp-action="Recete" asp-route-id="@m.Id" class="btn btn-sm btn-secondary"><i class="bi bi-printer" aria-hidden="true"></i> Yazdır</a>
+        }
+    </div>
+    @if (!m.ReceteKalemleri.Any())
+    {
+        <div class="bos-durum pb-3">
+            <span class="bos-durum-ikon" aria-hidden="true"><i class="bi bi-capsule"></i></span>
+            <div class="bos-durum-baslik">Reçeteye ilaç eklenmedi.</div>
+            <p class="mb-0">Aşağıdaki formdan ilaç ekleyebilirsiniz.</p>
+        </div>
+    }
+    else
+    {
+        <div class="tablo-kart">
+            <table class="table table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">İlaç</th>
+                        <th scope="col">Doz</th>
+                        <th scope="col">Kullanım Şekli</th>
+                        <th scope="col" class="text-center">Süre (gün)</th>
+                        <th scope="col">Miktar</th>
+                        <th scope="col" class="text-end">Birim Fiyat</th>
+                        <th scope="col" class="text-end">Tutar</th>
+                        <th scope="col" class="text-end"><span class="visually-hidden">İşlemler</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var k in m.ReceteKalemleri)
+                    {
+                        <tr>
+                            <td class="hucre-ana">@k.Ilac!.AdVeForm</td>
+                            <td>@k.Doz</td>
+                            <td>@k.KullanimSekli</td>
+                            <td class="text-center">@k.SureGun</td>
+                            <td class="text-nowrap">@k.Adet @k.Ilac.Birim</td>
+                            <td class="text-end tutar">@k.BirimFiyat.TL()</td>
+                            <td class="text-end tutar">@k.Tutar.TL()</td>
+                            <td>
+                                <form asp-action="ReceteKalemiSil" asp-route-id="@k.Id" method="post" class="islemler">
+                                    <button type="submit" class="btn btn-ikon tehlike" title="Reçeteden çıkar" aria-label="@k.Ilac.Ad reçeteden çıkar"
+                                            onclick="return confirm('Bu ilacı reçeteden çıkarmak istiyor musunuz?');"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    <div class="card-footer d-block" id="ilac-ekle">
+        <h3 class="h6 mb-3 d-flex align-items-center gap-2"><i class="bi bi-plus-circle text-primary" aria-hidden="true"></i> İlaç Ekle</h3>
         @if (!ilaclar.Any())
         {
             <div class="alert alert-warning">
-                Reçeteye ilaç eklemek için önce <a asp-controller="Ilaclar" asp-action="Create">ilaç tanımlayın</a>.
+                <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+                <div>Reçeteye ilaç eklemek için önce <a asp-controller="Ilaclar" asp-action="Create">ilaç tanımlayın</a>.</div>
             </div>
         }
         <form asp-action="ReceteKalemiEkle" asp-route-muayeneId="@m.Id" asp-fragment="ilac-ekle" method="post">
-            <div class="row">
-                <div class="col-md-6 mb-3">
+            <div class="row g-3">
+                <div class="col-md-6 col-xl-4">
                     <label asp-for="YeniKalem.IlacId" class="form-label"></label>
                     <select asp-for="YeniKalem.IlacId" asp-items="ilaclar" class="form-select">
                         <option value="">-- İlaç seçin --</option>
                     </select>
                     <span asp-validation-for="YeniKalem.IlacId" class="text-danger"></span>
                 </div>
-                <div class="col-md-6 mb-3">
+                <div class="col-md-6 col-xl-3">
                     <label asp-for="YeniKalem.Doz" class="form-label"></label>
                     <input asp-for="YeniKalem.Doz" class="form-control" placeholder="ör. 1 tablet" />
                     <span asp-validation-for="YeniKalem.Doz" class="text-danger"></span>
                 </div>
-                <div class="col-md-6 mb-3">
+                <div class="col-md-6 col-xl-5">
                     <label asp-for="YeniKalem.KullanimSekli" class="form-label"></label>
                     <input asp-for="YeniKalem.KullanimSekli" class="form-control" placeholder="ör. Günde 2 kez, tok karnına" />
                     <span asp-validation-for="YeniKalem.KullanimSekli" class="text-danger"></span>
                 </div>
-                <div class="col-md-3 mb-3">
+                <div class="col-6 col-md-3 col-xl-2">
                     <label asp-for="YeniKalem.SureGun" class="form-label"></label>
                     <input asp-for="YeniKalem.SureGun" class="form-control" />
                     <span asp-validation-for="YeniKalem.SureGun" class="text-danger"></span>
                 </div>
-                <div class="col-md-3 mb-3">
+                <div class="col-6 col-md-3 col-xl-2">
                     <label asp-for="YeniKalem.Adet" class="form-label"></label>
                     <input asp-for="YeniKalem.Adet" class="form-control" />
                     <span asp-validation-for="YeniKalem.Adet" class="text-danger"></span>
                 </div>
+                <div class="col-12 col-xl-auto d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Reçeteye Ekle</button>
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary">Ekle</button>
         </form>
     </div>
-</div>
+</section>
 
-<div class="row justify-content-end">
-    <div class="col-md-5 col-lg-4">
-        <table class="table table-sm">
-            <tbody>
-                <tr>
-                    <td>Muayene ücreti</td>
-                    <td class="text-end">@m.Ucret.TL()</td>
-                </tr>
-                <tr>
-                    <td>İlaç toplamı</td>
-                    <td class="text-end">@m.IlacToplami.TL()</td>
-                </tr>
-                <tr>
-                    <th>Genel toplam</th>
-                    <th class="text-end">@m.GenelToplam.TL()</th>
-                </tr>
-                <tr>
-                    <td>Ödenen</td>
-                    <td class="text-end">@m.OdenenToplam.TL()</td>
-                </tr>
-                <tr>
-                    <th>Kalan borç</th>
-                    <th class="text-end">@m.KalanBorc.TL()</th>
-                </tr>
-                <tr>
-                    <td>Durum</td>
-                    <td class="text-end"><partial name="_OdemeDurumuRozeti" model="m.OdemeDurumu" /></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<h2 id="odemeler" class="h4">Ödemeler</h2>
-@if (!m.Odemeler.Any())
-{
-    <p class="text-muted">Ödeme alınmadı.</p>
-}
-else
-{
-    <table class="table table-sm align-middle">
-        <thead>
-            <tr>
-                <th>Tarih</th>
-                <th>Yöntem</th>
-                <th class="text-end">Tutar</th>
-                <th>Açıklama</th>
-                <th><span class="visually-hidden">İşlemler</span></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var o in m.Odemeler)
-            {
-                <tr>
-                    <td>@o.Tarih.ToString("dd.MM.yyyy HH:mm")</td>
-                    <td>@o.Yontem.GetDisplayName()</td>
-                    <td class="text-end">@o.Tutar.TL()</td>
-                    <td>@o.Aciklama</td>
-                    <td class="text-end">
-                        <a asp-controller="Odemeler" asp-action="Details" asp-route-id="@o.Id"
-                           class="btn btn-sm btn-outline-secondary">Makbuz</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+<section class="card" aria-labelledby="odemeler">
+    <div class="card-header"><h2 id="odemeler"><i class="bi bi-wallet2" aria-hidden="true"></i> Ödemeler</h2></div>
+    @if (!m.Odemeler.Any())
+    {
+        <div class="bos-durum">
+            <span class="bos-durum-ikon" aria-hidden="true"><i class="bi bi-wallet2"></i></span>
+            <div class="bos-durum-baslik">Henüz ödeme alınmadı.</div>
+        </div>
+    }
+    else
+    {
+        <div class="tablo-kart">
+            <table class="table table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">Tarih</th>
+                        <th scope="col">Yöntem</th>
+                        <th scope="col" class="text-end">Tutar</th>
+                        <th scope="col">Açıklama</th>
+                        <th scope="col" class="text-end"><span class="visually-hidden">İşlemler</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var o in m.Odemeler)
+                    {
+                        <tr>
+                            <td class="text-nowrap">@o.Tarih.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>@o.Yontem.GetDisplayName()</td>
+                            <td class="text-end tutar">@o.Tutar.TL()</td>
+                            <td>@o.Aciklama</td>
+                            <td>
+                                <div class="islemler">
+                                    <a asp-controller="Odemeler" asp-action="Details" asp-route-id="@o.Id"
+                                       class="btn btn-ikon" title="Makbuz" aria-label="Makbuz #@o.Id"><i class="bi bi-receipt" aria-hidden="true"></i></a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

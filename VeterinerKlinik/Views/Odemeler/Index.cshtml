@@ -7,108 +7,166 @@
     var filtreHata = ViewData["FiltreHata"] as string;
     var yontemler = (List<SelectListItem>)ViewData["Yontemler"]!;
     var toplam = Model.Sum(o => o.Tutar);
+    var filtreVar = Context.Request.Query.Any(q => !string.IsNullOrEmpty(q.Value));
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="mb-0">Ödemeler</h1>
-    <a asp-action="Create" class="btn btn-primary">Yeni Ödeme</a>
+<div class="sayfa-baslik">
+    <div>
+        <h1>Ödemeler</h1>
+        <p class="sayfa-aciklama">Tahsilatlar, makbuzlar ve yönteme göre dağılım.</p>
+    </div>
+    <div class="sayfa-eylemler">
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg" aria-hidden="true"></i> Yeni Ödeme
+        </a>
+    </div>
 </div>
 
 <partial name="_Bildirim" />
 
 @if (filtreHata != null)
 {
-    <div class="alert alert-warning">@filtreHata</div>
+    <div class="alert alert-warning" role="alert">
+        <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+        <div>@filtreHata</div>
+    </div>
 }
 
-<form method="get" asp-action="Index" class="row g-2 mb-3">
-    <div class="col-sm-6 col-md-3">
-        <input type="text" name="arama" value="@arama" class="form-control" aria-label="Arama"
-               placeholder="Sahip, hayvan veya açıklama ara" />
-    </div>
-    <div class="col-sm-6 col-md-2">
-        <select name="yontem" asp-items="yontemler" class="form-select" aria-label="Ödeme yöntemi">
-            <option value="">Tüm yöntemler</option>
-        </select>
-    </div>
-    <div class="col-sm-6 col-md-2">
-        <input type="date" name="baslangic" value="@baslangic" class="form-control" aria-label="Başlangıç tarihi" />
-    </div>
-    <div class="col-sm-6 col-md-2">
-        <input type="date" name="bitis" value="@bitis" class="form-control" aria-label="Bitiş tarihi" />
-    </div>
-    <div class="col-auto">
-        <button type="submit" class="btn btn-outline-primary">Ara</button>
-        <a asp-action="Index" class="btn btn-outline-secondary">Temizle</a>
-    </div>
-</form>
-
-<div class="row g-2 mb-3">
+<div class="ozet-grid">
     @foreach (var y in Enum.GetValues<OdemeYontemi>())
     {
-        <div class="col-6 col-md-3">
-            <div class="border rounded p-2">
-                <div class="text-muted small">@y.GetDisplayName()</div>
-                <div class="fw-bold">@Model.Where(o => o.Yontem == y).Sum(o => o.Tutar).TL()</div>
+        var ikon = y switch
+        {
+            OdemeYontemi.Nakit => "bi-cash-stack",
+            OdemeYontemi.KrediKarti => "bi-credit-card",
+            _ => "bi-bank"
+        };
+        <div class="ozet-kart">
+            <span class="ozet-ikon" aria-hidden="true"><i class="bi @ikon"></i></span>
+            <div>
+                <div class="ozet-etiket">@y.GetDisplayName()</div>
+                <div class="ozet-deger">@Model.Where(o => o.Yontem == y).Sum(o => o.Tutar).TL()</div>
             </div>
         </div>
     }
-    <div class="col-6 col-md-3">
-        <div class="border rounded p-2">
-            <div class="text-muted small">Toplam</div>
-            <div class="fw-bold">@toplam.TL()</div>
+    <div class="ozet-kart">
+        <span class="ozet-ikon vurgu" aria-hidden="true"><i class="bi bi-wallet2"></i></span>
+        <div>
+            <div class="ozet-etiket">Toplam</div>
+            <div class="ozet-deger">@toplam.TL()</div>
         </div>
     </div>
 </div>
 
-<table class="table table-striped align-middle">
-    <thead>
-        <tr>
-            <th>Tarih</th>
-            <th>Sahip</th>
-            <th>Muayene</th>
-            <th>Yöntem</th>
-            <th class="text-end">Tutar</th>
-            <th>Açıklama</th>
-            <th>İşlemler</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var o in Model)
+<form method="get" asp-action="Index" class="filtre row g-2 align-items-end" role="search">
+    <div class="col-12 col-xl">
+        <label for="filtreArama" class="form-label">Arama</label>
+        <div class="arama-kutusu">
+            <i class="bi bi-search" aria-hidden="true"></i>
+            <input type="search" id="filtreArama" name="arama" value="@arama" class="form-control"
+                   placeholder="Sahip, hayvan veya açıklama ara" />
+        </div>
+    </div>
+    <div class="col-sm-4 col-xl-2">
+        <label for="filtreYontem" class="form-label">Yöntem</label>
+        <select id="filtreYontem" name="yontem" asp-items="yontemler" class="form-select">
+            <option value="">Tümü</option>
+        </select>
+    </div>
+    <div class="col-6 col-sm-4 col-xl-2">
+        <label for="filtreBaslangic" class="form-label">Başlangıç</label>
+        <input type="date" id="filtreBaslangic" name="baslangic" value="@baslangic" class="form-control" />
+    </div>
+    <div class="col-6 col-sm-4 col-xl-2">
+        <label for="filtreBitis" class="form-label">Bitiş</label>
+        <input type="date" id="filtreBitis" name="bitis" value="@bitis" class="form-control" />
+    </div>
+    <div class="col-12 col-xl-auto d-flex gap-2 justify-content-end">
+        @if (filtreVar)
         {
+            <a asp-action="Index" class="btn btn-outline-secondary">Temizle</a>
+        }
+        <button type="submit" class="btn btn-outline-primary"><i class="bi bi-funnel" aria-hidden="true"></i> Filtrele</button>
+    </div>
+</form>
+
+<div class="tablo-kart">
+    <table class="table align-middle">
+        <thead>
             <tr>
-                <td>@o.Tarih.ToString("dd.MM.yyyy HH:mm")</td>
-                <td><a asp-controller="Sahipler" asp-action="Details" asp-route-id="@o.SahipId">@o.SahipAdSoyad</a></td>
-                <td>
-                    @if (o.MuayeneId != null)
-                    {
-                        <a asp-controller="Muayeneler" asp-action="Details" asp-route-id="@o.MuayeneId">#@o.MuayeneId - @o.HayvanAdi</a>
-                    }
-                    else
-                    {
-                        <span>—</span>
-                    }
-                </td>
-                <td>@o.Yontem.GetDisplayName()</td>
-                <td class="text-end">@o.Tutar.TL()</td>
-                <td>@o.Aciklama</td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@o.Id" class="btn btn-sm btn-outline-secondary">Makbuz</a>
-                    <a asp-action="Edit" asp-route-id="@o.Id" class="btn btn-sm btn-outline-primary">Düzenle</a>
-                    <a asp-action="Delete" asp-route-id="@o.Id" class="btn btn-sm btn-outline-danger">Sil</a>
-                </td>
+                <th scope="col">Tarih</th>
+                <th scope="col">Sahip</th>
+                <th scope="col">Muayene</th>
+                <th scope="col">Yöntem</th>
+                <th scope="col" class="text-end">Tutar</th>
+                <th scope="col">Açıklama</th>
+                <th scope="col" class="text-end"><span class="visually-hidden">İşlemler</span></th>
             </tr>
-        }
-        @if (!Model.Any())
+        </thead>
+        <tbody>
+            @foreach (var o in Model)
+            {
+                <tr>
+                    <td class="text-nowrap">
+                        @o.Tarih.ToString("dd.MM.yyyy")
+                        <span class="hucre-alt">@o.Tarih.ToString("HH:mm")</span>
+                    </td>
+                    <td><a asp-controller="Sahipler" asp-action="Details" asp-route-id="@o.SahipId">@o.SahipAdSoyad</a></td>
+                    <td>
+                        @if (o.MuayeneId != null)
+                        {
+                            <a asp-controller="Muayeneler" asp-action="Details" asp-route-id="@o.MuayeneId">#@o.MuayeneId</a>
+                            <span class="hucre-alt">@o.HayvanAdi</span>
+                        }
+                        else
+                        {
+                            <span>—</span>
+                        }
+                    </td>
+                    <td>@o.Yontem.GetDisplayName()</td>
+                    <td class="text-end tutar fw-bold">@o.Tutar.TL()</td>
+                    <td>@o.Aciklama</td>
+                    <td>
+                        <div class="islemler">
+                            <a asp-action="Details" asp-route-id="@o.Id" class="btn btn-ikon" title="Makbuz" aria-label="Makbuz #@o.Id"><i class="bi bi-receipt" aria-hidden="true"></i></a>
+                            <a asp-action="Edit" asp-route-id="@o.Id" class="btn btn-ikon" title="Düzenle" aria-label="Ödeme #@o.Id düzenle"><i class="bi bi-pencil-square" aria-hidden="true"></i></a>
+                            <a asp-action="Delete" asp-route-id="@o.Id" class="btn btn-ikon tehlike" title="Sil" aria-label="Ödeme #@o.Id sil"><i class="bi bi-trash3" aria-hidden="true"></i></a>
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="7">
+                        <div class="bos-durum">
+                            <span class="bos-durum-ikon" aria-hidden="true"><i class="bi bi-wallet2"></i></span>
+                            @if (filtreVar)
+                            {
+                                <div class="bos-durum-baslik">Filtrelere uyan ödeme bulunamadı.</div>
+                                <p>Filtreleri değiştirerek tekrar deneyin.</p>
+                                <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Filtreleri temizle</a>
+                            }
+                            else
+                            {
+                                <div class="bos-durum-baslik">Henüz ödeme alınmadı.</div>
+                                <p>Muayene detayından veya buradan ödeme alabilirsiniz.</p>
+                                <a asp-action="Create" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg" aria-hidden="true"></i> Yeni Ödeme</a>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        @if (Model.Any())
         {
-            <tr><td colspan="7" class="text-center text-muted">Kayıt bulunamadı.</td></tr>
+            <tfoot>
+                <tr>
+                    <th scope="row" colspan="4">@Model.Count() ödeme</th>
+                    <th class="text-end tutar">@toplam.TL()</th>
+                    <th colspan="2"></th>
+                </tr>
+            </tfoot>
         }
-    </tbody>
-    <tfoot>
-        <tr>
-            <th colspan="4">@Model.Count() ödeme</th>
-            <th class="text-end">@toplam.TL()</th>
-            <th colspan="2"></th>
-        </tr>
-    </tfoot>
-</table>
+    </table>
+</div>

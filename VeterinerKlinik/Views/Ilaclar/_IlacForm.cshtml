@@ -1,25 +1,28 @@
 @model Ilac
 
-<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
 <div class="row">
     <div class="col-md-6 mb-3">
         <label asp-for="Ad" class="form-label"></label>
-        <input asp-for="Ad" class="form-control" />
+        <input asp-for="Ad" class="form-control" placeholder="ör. Amoksisilin" />
         <span asp-validation-for="Ad" class="text-danger"></span>
     </div>
     <div class="col-md-6 mb-3">
         <label asp-for="Form" class="form-label"></label>
-        <input asp-for="Form" class="form-control" />
+        <input asp-for="Form" class="form-control" placeholder="ör. Tablet, Şurup, Enjeksiyon" />
         <span asp-validation-for="Form" class="text-danger"></span>
     </div>
-    <div class="col-md-6 mb-3">
+    <div class="col-md-6 mb-3 mb-md-0">
         <label asp-for="Birim" class="form-label"></label>
-        <input asp-for="Birim" class="form-control" />
+        <input asp-for="Birim" class="form-control" placeholder="ör. Tablet, ml, Flakon" />
         <span asp-validation-for="Birim" class="text-danger"></span>
     </div>
-    <div class="col-md-6 mb-3">
+    <div class="col-md-6">
         <label asp-for="BirimFiyat" class="form-label"></label>
-        <input asp-for="BirimFiyat" class="form-control" inputmode="decimal" />
+        <div class="input-group">
+            <input asp-for="BirimFiyat" class="form-control" inputmode="decimal" />
+            <span class="input-group-text">₺</span>
+        </div>
         <span asp-validation-for="BirimFiyat" class="text-danger"></span>
     </div>
 </div>

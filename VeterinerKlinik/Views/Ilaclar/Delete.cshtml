@@ -2,39 +2,52 @@
 @{
     ViewData["Title"] = "İlaç Sil";
     var kullanimSayisi = (int)(ViewData["KullanimSayisi"] ?? 0);
+    var silinebilir = kullanimSayisi == 0;
 }
 
-<h1>İlaç Sil</h1>
+<a asp-action="Index" class="geri-link"><i class="bi bi-arrow-left" aria-hidden="true"></i> İlaçlar</a>
 <partial name="_Bildirim" />
 
-@if (kullanimSayisi == 0)
-{
-    <p class="text-danger">Bu ilacı silmek istediğinizden emin misiniz?</p>
-}
+<div class="card silme-karti">
+    <div class="card-body">
+        <div class="silme-baslik">
+            @if (silinebilir)
+            {
+                <span class="silme-ikon" aria-hidden="true"><i class="bi bi-trash3"></i></span>
+                <div>
+                    <h1 class="h3 mb-1">İlaç Sil</h1>
+                    <p class="text-secondary mb-0">Bu ilacı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.</p>
+                </div>
+            }
+            else
+            {
+                <span class="silme-ikon uyari" aria-hidden="true"><i class="bi bi-exclamation-triangle"></i></span>
+                <div>
+                    <h1 class="h3 mb-1">İlaç Silinemez</h1>
+                    <p class="text-secondary mb-0">Bu ilaç reçetelerde kullanıldığı için silinemez.</p>
+                </div>
+            }
+        </div>
 
-<dl class="row">
-    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Ad)</dt>
-    <dd class="col-sm-9">@Model.Ad</dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Form)</dt>
-    <dd class="col-sm-9">@Model.Form</dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Birim)</dt>
-    <dd class="col-sm-9">@Model.Birim</dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.BirimFiyat)</dt>
-    <dd class="col-sm-9">@Model.BirimFiyat.TL()</dd>
-    <dt class="col-sm-3">Reçete Sayısı</dt>
-    <dd class="col-sm-9">@kullanimSayisi</dd>
-</dl>
+        <dl class="bilgi-listesi mb-4">
+            <div><dt>@Html.DisplayNameFor(m => m.Ad)</dt><dd class="fw-bold">@Model.Ad</dd></div>
+            <div><dt>@Html.DisplayNameFor(m => m.Form)</dt><dd>@Model.Form</dd></div>
+            <div><dt>@Html.DisplayNameFor(m => m.Birim)</dt><dd>@Model.Birim</dd></div>
+            <div><dt>@Html.DisplayNameFor(m => m.BirimFiyat)</dt><dd>@Model.BirimFiyat.TL()</dd></div>
+            <div><dt>Reçete Sayısı</dt><dd>@kullanimSayisi</dd></div>
+        </dl>
 
-@if (kullanimSayisi > 0)
-{
-    <div class="alert alert-warning">Bu ilaç reçetelerde kullanıldığı için silinemez.</div>
-    <a asp-action="Index" class="btn btn-secondary">Geri Dön</a>
-}
-else
-{
-    <form asp-action="Delete" method="post">
-        <input type="hidden" asp-for="Id" />
-        <button type="submit" class="btn btn-danger">Sil</button>
-        <a asp-action="Index" class="btn btn-secondary">Vazgeç</a>
-    </form>
-}
+        @if (silinebilir)
+        {
+            <form asp-action="Delete" method="post" class="d-flex flex-wrap gap-2">
+                <input type="hidden" asp-for="Id" />
+                <button type="submit" class="btn btn-danger"><i class="bi bi-trash3" aria-hidden="true"></i> İlacı Sil</button>
+                <a asp-action="Index" class="btn btn-secondary">Vazgeç</a>
+            </form>
+        }
+        else
+        {
+            <a asp-action="Index" class="btn btn-secondary">Geri Dön</a>
+        }
+    </div>
+</div>

@@ -4,53 +4,89 @@
     var arama = ViewData["Arama"] as string;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="mb-0">Sahipler</h1>
-    <a asp-action="Create" class="btn btn-primary">Yeni Sahip</a>
+<div class="sayfa-baslik">
+    <div>
+        <h1>Sahipler</h1>
+        <p class="sayfa-aciklama">Hayvan sahiplerini ve iletişim bilgilerini yönetin.</p>
+    </div>
+    <div class="sayfa-eylemler">
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg" aria-hidden="true"></i> Yeni Sahip
+        </a>
+    </div>
 </div>
 
 <partial name="_Bildirim" />
 
-<form method="get" asp-action="Index" class="row g-2 mb-3">
-    <div class="col-sm-6 col-md-4">
-        <input type="text" name="arama" value="@arama" class="form-control" placeholder="Ad, soyad, telefon veya e-posta ara" />
+<form method="get" asp-action="Index" class="filtre row g-2 align-items-center" role="search">
+    <div class="col-sm-8 col-md-6">
+        <div class="arama-kutusu">
+            <i class="bi bi-search" aria-hidden="true"></i>
+            <input type="search" name="arama" value="@arama" class="form-control" aria-label="Sahip ara"
+                   placeholder="Ad, soyad, telefon veya e-posta ara" />
+        </div>
     </div>
-    <div class="col-auto">
+    <div class="col-auto d-flex gap-2">
         <button type="submit" class="btn btn-outline-primary">Ara</button>
-        <a asp-action="Index" class="btn btn-outline-secondary">Temizle</a>
+        @if (!string.IsNullOrEmpty(arama))
+        {
+            <a asp-action="Index" class="btn btn-outline-secondary">Temizle</a>
+        }
     </div>
 </form>
 
-<table class="table table-striped align-middle">
-    <thead>
-        <tr>
-            <th>Ad Soyad</th>
-            <th>Telefon</th>
-            <th>E-posta</th>
-            <th>Hayvan Sayısı</th>
-            <th>Kayıt Tarihi</th>
-            <th>İşlemler</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var s in Model)
-        {
+<div class="tablo-kart">
+    <table class="table align-middle">
+        <thead>
             <tr>
-                <td>@s.AdSoyad</td>
-                <td>@s.Telefon</td>
-                <td>@s.Eposta</td>
-                <td>@s.HayvanSayisi</td>
-                <td>@s.KayitTarihi.ToString("dd.MM.yyyy")</td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@s.Id" class="btn btn-sm btn-outline-info">Detay</a>
-                    <a asp-action="Edit" asp-route-id="@s.Id" class="btn btn-sm btn-outline-primary">Düzenle</a>
-                    <a asp-action="Delete" asp-route-id="@s.Id" class="btn btn-sm btn-outline-danger">Sil</a>
-                </td>
+                <th scope="col">Ad Soyad</th>
+                <th scope="col">Telefon</th>
+                <th scope="col">E-posta</th>
+                <th scope="col" class="text-center">Hayvan</th>
+                <th scope="col">Kayıt Tarihi</th>
+                <th scope="col" class="text-end"><span class="visually-hidden">İşlemler</span></th>
             </tr>
-        }
-        @if (!Model.Any())
-        {
-            <tr><td colspan="6" class="text-center text-muted">Kayıt bulunamadı.</td></tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var s in Model)
+            {
+                <tr>
+                    <td><a asp-action="Details" asp-route-id="@s.Id" class="hucre-ana">@s.AdSoyad</a></td>
+                    <td class="text-nowrap">@s.Telefon</td>
+                    <td>@s.Eposta</td>
+                    <td class="text-center">@s.HayvanSayisi</td>
+                    <td class="text-nowrap">@s.KayitTarihi.ToString("dd.MM.yyyy")</td>
+                    <td>
+                        <div class="islemler">
+                            <a asp-action="Details" asp-route-id="@s.Id" class="btn btn-ikon" title="Detay" aria-label="@s.AdSoyad detayı"><i class="bi bi-eye" aria-hidden="true"></i></a>
+                            <a asp-action="Edit" asp-route-id="@s.Id" class="btn btn-ikon" title="Düzenle" aria-label="@s.AdSoyad düzenle"><i class="bi bi-pencil-square" aria-hidden="true"></i></a>
+                            <a asp-action="Delete" asp-route-id="@s.Id" class="btn btn-ikon tehlike" title="Sil" aria-label="@s.AdSoyad sil"><i class="bi bi-trash3" aria-hidden="true"></i></a>
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="6">
+                        <div class="bos-durum">
+                            <span class="bos-durum-ikon" aria-hidden="true"><i class="bi bi-people"></i></span>
+                            @if (!string.IsNullOrEmpty(arama))
+                            {
+                                <div class="bos-durum-baslik">Aramanızla eşleşen sahip bulunamadı.</div>
+                                <p>Farklı bir ad, telefon veya e-posta ile tekrar deneyin.</p>
+                                <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Aramayı temizle</a>
+                            }
+                            else
+                            {
+                                <div class="bos-durum-baslik">Henüz sahip kaydı yok.</div>
+                                <p>İlk sahip kaydını oluşturarak başlayın.</p>
+                                <a asp-action="Create" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg" aria-hidden="true"></i> Yeni Sahip</a>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

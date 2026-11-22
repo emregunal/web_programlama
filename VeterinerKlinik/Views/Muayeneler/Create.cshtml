@@ -3,13 +3,23 @@
     ViewData["Title"] = "Yeni Muayene";
 }
 
-<h1>Yeni Muayene</h1>
+<a asp-action="Index" class="geri-link"><i class="bi bi-arrow-left" aria-hidden="true"></i> Muayeneler</a>
+<div class="sayfa-baslik">
+    <div>
+        <h1>Yeni Muayene</h1>
+        <p class="sayfa-aciklama">Muayene bilgilerini girin; reçeteyi kayıttan sonra ekleyebilirsiniz.</p>
+    </div>
+</div>
 <partial name="_Bildirim" />
 
-<form asp-action="Create" method="post">
-    <partial name="_MuayeneForm" model="Model" />
-    <button type="submit" class="btn btn-primary">Kaydet</button>
-    <a asp-action="Index" class="btn btn-secondary">Vazgeç</a>
+<form asp-action="Create" method="post" class="card form-kart">
+    <div class="card-body">
+        <partial name="_MuayeneForm" model="Model" />
+    </div>
+    <div class="card-footer">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg" aria-hidden="true"></i> Kaydet</button>
+        <a asp-action="Index" class="btn btn-secondary">Vazgeç</a>
+    </div>
 </form>
 
 @section Scripts {

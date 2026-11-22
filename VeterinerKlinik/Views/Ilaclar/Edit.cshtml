@@ -3,16 +3,29 @@
     ViewData["Title"] = "İlaç Düzenle";
 }
 
-<h1>İlaç Düzenle</h1>
+<a asp-action="Index" class="geri-link"><i class="bi bi-arrow-left" aria-hidden="true"></i> İlaçlar</a>
+<div class="sayfa-baslik">
+    <div>
+        <h1>İlaç Düzenle</h1>
+        <p class="sayfa-aciklama">@Model.Ad bilgilerini güncelleyin.</p>
+    </div>
+</div>
 <partial name="_Bildirim" />
 
-<div class="alert alert-info">Fiyat değişikliği daha önce yazılmış reçeteleri etkilemez.</div>
+<div class="alert alert-info form-kart">
+    <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
+    <div>Fiyat değişikliği daha önce yazılmış reçeteleri etkilemez.</div>
+</div>
 
-<form asp-action="Edit" method="post">
+<form asp-action="Edit" method="post" class="card form-kart">
     <input type="hidden" asp-for="Id" />
-    <partial name="_IlacForm" model="Model" />
-    <button type="submit" class="btn btn-primary">Kaydet</button>
-    <a asp-action="Index" class="btn btn-secondary">Vazgeç</a>
+    <div class="card-body">
+        <partial name="_IlacForm" model="Model" />
+    </div>
+    <div class="card-footer">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg" aria-hidden="true"></i> Kaydet</button>
+        <a asp-action="Index" class="btn btn-secondary">Vazgeç</a>
+    </div>
 </form>
 
 @section Scripts {

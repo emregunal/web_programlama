@@ -3,47 +3,58 @@
     ViewData["Title"] = "Muayene Sil";
     var kalemSayisi = (int)(ViewData["KalemSayisi"] ?? 0);
     var odemeSayisi = (int)(ViewData["OdemeSayisi"] ?? 0);
+    var silinebilir = odemeSayisi == 0;
 }
 
-<h1>Muayene Sil</h1>
+<a asp-action="Details" asp-route-id="@Model.Id" class="geri-link"><i class="bi bi-arrow-left" aria-hidden="true"></i> Muayene #@Model.Id</a>
 <partial name="_Bildirim" />
 
-@if (odemeSayisi == 0)
-{
-    <p class="text-danger">Bu muayeneyi silmek istediğinizden emin misiniz? Reçetedeki ilaçlar da silinecek.</p>
-    @if (Model.Randevu?.Durum == RandevuDurumu.Tamamlandi)
-    {
-        <p class="text-danger">Bağlı randevu tekrar 'Planlandı' durumuna alınacak.</p>
-    }
-}
+<div class="card silme-karti">
+    <div class="card-body">
+        <div class="silme-baslik">
+            @if (silinebilir)
+            {
+                <span class="silme-ikon" aria-hidden="true"><i class="bi bi-trash3"></i></span>
+                <div>
+                    <h1 class="h3 mb-1">Muayene Sil</h1>
+                    <p class="text-secondary mb-0">Bu muayeneyi silmek istediğinizden emin misiniz? Reçetedeki ilaçlar da silinecek.</p>
+                    @if (Model.Randevu?.Durum == RandevuDurumu.Tamamlandi)
+                    {
+                        <p class="text-secondary mb-0 mt-1">Bağlı randevu tekrar 'Planlandı' durumuna alınacak.</p>
+                    }
+                </div>
+            }
+            else
+            {
+                <span class="silme-ikon uyari" aria-hidden="true"><i class="bi bi-exclamation-triangle"></i></span>
+                <div>
+                    <h1 class="h3 mb-1">Muayene Silinemez</h1>
+                    <p class="text-secondary mb-0">Bu muayeneye bağlı ödeme olduğu için silinemez.</p>
+                </div>
+            }
+        </div>
 
-<dl class="row">
-    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Tarih)</dt>
-    <dd class="col-sm-9">@Model.Tarih.ToString("dd.MM.yyyy HH:mm")</dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.HayvanId)</dt>
-    <dd class="col-sm-9">@Model.Hayvan!.Ad (@Model.Hayvan.Tur.GetDisplayName())</dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Hayvan!.SahipId)</dt>
-    <dd class="col-sm-9">@Model.Hayvan.Sahip!.AdSoyad</dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.VeterinerId)</dt>
-    <dd class="col-sm-9">@Model.Veteriner!.AdSoyad</dd>
-    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Teshis)</dt>
-    <dd class="col-sm-9">@Model.Teshis</dd>
-    <dt class="col-sm-3">Reçete Kalemi Sayısı</dt>
-    <dd class="col-sm-9">@kalemSayisi</dd>
-    <dt class="col-sm-3">Ödeme Sayısı</dt>
-    <dd class="col-sm-9">@odemeSayisi</dd>
-</dl>
+        <dl class="bilgi-listesi mb-4">
+            <div><dt>@Html.DisplayNameFor(m => m.Tarih)</dt><dd>@Model.Tarih.ToString("dd.MM.yyyy HH:mm")</dd></div>
+            <div><dt>@Html.DisplayNameFor(m => m.HayvanId)</dt><dd class="fw-bold">@Model.Hayvan!.Ad (@Model.Hayvan.Tur.GetDisplayName())</dd></div>
+            <div><dt>@Html.DisplayNameFor(m => m.Hayvan!.SahipId)</dt><dd>@Model.Hayvan.Sahip!.AdSoyad</dd></div>
+            <div><dt>@Html.DisplayNameFor(m => m.VeterinerId)</dt><dd>@Model.Veteriner!.AdSoyad</dd></div>
+            <div><dt>@Html.DisplayNameFor(m => m.Teshis)</dt><dd>@Model.Teshis</dd></div>
+            <div><dt>Reçete Kalemi Sayısı</dt><dd>@kalemSayisi</dd></div>
+            <div><dt>Ödeme Sayısı</dt><dd>@odemeSayisi</dd></div>
+        </dl>
 
-@if (odemeSayisi > 0)
-{
-    <div class="alert alert-warning">Bu muayeneye bağlı ödeme olduğu için silinemez.</div>
-    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Geri Dön</a>
-}
-else
-{
-    <form asp-action="Delete" method="post">
-        <input type="hidden" asp-for="Id" />
-        <button type="submit" class="btn btn-danger">Sil</button>
-        <a asp-action="Index" class="btn btn-secondary">Vazgeç</a>
-    </form>
-}
+        @if (silinebilir)
+        {
+            <form asp-action="Delete" method="post" class="d-flex flex-wrap gap-2">
+                <input type="hidden" asp-for="Id" />
+                <button type="submit" class="btn btn-danger"><i class="bi bi-trash3" aria-hidden="true"></i> Muayeneyi Sil</button>
+                <a asp-action="Index" class="btn btn-secondary">Vazgeç</a>
+            </form>
+        }
+        else
+        {
+            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Geri Dön</a>
+        }
+    </div>
+</div>

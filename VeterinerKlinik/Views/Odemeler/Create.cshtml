@@ -3,20 +3,37 @@
     ViewData["Title"] = "Yeni Ödeme";
 }
 
-<h1>Yeni Ödeme</h1>
+@if (Model.MuayeneId != null)
+{
+    <a asp-controller="Muayeneler" asp-action="Details" asp-route-id="@Model.MuayeneId" class="geri-link"><i class="bi bi-arrow-left" aria-hidden="true"></i> Muayene #@Model.MuayeneId</a>
+}
+else
+{
+    <a asp-action="Index" class="geri-link"><i class="bi bi-arrow-left" aria-hidden="true"></i> Ödemeler</a>
+}
+<div class="sayfa-baslik">
+    <div>
+        <h1>Yeni Ödeme</h1>
+        <p class="sayfa-aciklama">Bir muayene için tahsilat kaydı oluşturun.</p>
+    </div>
+</div>
 <partial name="_Bildirim" />
 
-<form asp-action="Create" method="post">
-    <partial name="_OdemeForm" model="Model" />
-    <button type="submit" class="btn btn-primary">Kaydet</button>
-    @if (Model.MuayeneId != null)
-    {
-        <a asp-controller="Muayeneler" asp-action="Details" asp-route-id="@Model.MuayeneId" class="btn btn-secondary">Vazgeç</a>
-    }
-    else
-    {
-        <a asp-action="Index" class="btn btn-secondary">Vazgeç</a>
-    }
+<form asp-action="Create" method="post" class="card form-kart">
+    <div class="card-body">
+        <partial name="_OdemeForm" model="Model" />
+    </div>
+    <div class="card-footer">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg" aria-hidden="true"></i> Kaydet</button>
+        @if (Model.MuayeneId != null)
+        {
+            <a asp-controller="Muayeneler" asp-action="Details" asp-route-id="@Model.MuayeneId" class="btn btn-secondary">Vazgeç</a>
+        }
+        else
+        {
+            <a asp-action="Index" class="btn btn-secondary">Vazgeç</a>
+        }
+    </div>
 </form>
 
 @section Scripts {

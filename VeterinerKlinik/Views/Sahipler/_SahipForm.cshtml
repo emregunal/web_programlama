@@ -1,30 +1,30 @@
 @model Sahip
 
-<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
 <div class="row">
     <div class="col-md-6 mb-3">
         <label asp-for="Ad" class="form-label"></label>
-        <input asp-for="Ad" class="form-control" />
+        <input asp-for="Ad" class="form-control" autocomplete="given-name" />
         <span asp-validation-for="Ad" class="text-danger"></span>
     </div>
     <div class="col-md-6 mb-3">
         <label asp-for="Soyad" class="form-label"></label>
-        <input asp-for="Soyad" class="form-control" />
+        <input asp-for="Soyad" class="form-control" autocomplete="family-name" />
         <span asp-validation-for="Soyad" class="text-danger"></span>
     </div>
     <div class="col-md-6 mb-3">
         <label asp-for="Telefon" class="form-label"></label>
-        <input asp-for="Telefon" class="form-control" />
+        <input asp-for="Telefon" class="form-control" type="tel" autocomplete="tel" placeholder="05xx xxx xx xx" />
         <span asp-validation-for="Telefon" class="text-danger"></span>
     </div>
     <div class="col-md-6 mb-3">
         <label asp-for="Eposta" class="form-label"></label>
-        <input asp-for="Eposta" class="form-control" />
+        <input asp-for="Eposta" class="form-control" autocomplete="email" />
         <span asp-validation-for="Eposta" class="text-danger"></span>
     </div>
-    <div class="col-12 mb-3">
+    <div class="col-12">
         <label asp-for="Adres" class="form-label"></label>
-        <textarea asp-for="Adres" class="form-control" rows="3"></textarea>
+        <textarea asp-for="Adres" class="form-control" rows="3" autocomplete="street-address"></textarea>
         <span asp-validation-for="Adres" class="text-danger"></span>
     </div>
 </div>
