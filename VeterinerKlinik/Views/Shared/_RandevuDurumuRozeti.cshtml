@@ -1,0 +1,11 @@
+@model RandevuDurumu
+@{
+    var sinif = Model switch
+    {
+        RandevuDurumu.Planlandi => "durum-mavi",
+        RandevuDurumu.Tamamlandi => "durum-yesil",
+        RandevuDurumu.Gelmedi => "durum-kirmizi",
+        _ => "durum-gri"
+    };
+}
+<span class="badge durum-rozeti @sinif">@Model.GetDisplayName()</span>

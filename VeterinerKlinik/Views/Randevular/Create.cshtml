@@ -1,0 +1,27 @@
+@model Randevu
+@{
+    ViewData["Title"] = "Yeni Randevu";
+}
+
+<a asp-action="Index" class="geri-link"><i class="bi bi-arrow-left" aria-hidden="true"></i> Randevular</a>
+<div class="sayfa-baslik">
+    <div>
+        <h1>Yeni Randevu</h1>
+        <p class="sayfa-aciklama">Hayvan, veteriner ve zamanı seçin; çakışmalar otomatik denetlenir.</p>
+    </div>
+</div>
+<partial name="_Bildirim" />
+
+<form asp-action="Create" method="post" class="card form-kart">
+    <div class="card-body">
+        <partial name="_RandevuForm" model="Model" />
+    </div>
+    <div class="card-footer">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg" aria-hidden="true"></i> Kaydet</button>
+        <a asp-action="Index" class="btn btn-secondary">Vazgeç</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

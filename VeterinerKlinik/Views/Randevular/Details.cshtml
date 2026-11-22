@@ -1,0 +1,98 @@
+@model Randevu
+@{
+    ViewData["Title"] = "Randevu #" + Model.Id;
+    var muayeneId = ViewData["MuayeneId"] as int?;
+    var bitis = Model.Baslangic.AddMinutes(Model.SureDakika);
+    var sahip = Model.Hayvan!.Sahip!;
+}
+
+<a asp-action="Index" class="geri-link"><i class="bi bi-arrow-left" aria-hidden="true"></i> Randevular</a>
+<div class="sayfa-baslik">
+    <div>
+        <h1>Randevu #@Model.Id</h1>
+        <p class="sayfa-aciklama">@Model.Hayvan.Ad için @Model.Baslangic.ToString("dd.MM.yyyy HH:mm") randevusu.</p>
+    </div>
+    <div class="sayfa-eylemler">
+        @if (Model.Durum == RandevuDurumu.Planlandi && muayeneId == null)
+        {
+            <a asp-controller="Muayeneler" asp-action="Create" asp-route-randevuId="@Model.Id" class="btn btn-primary">
+                <i class="bi bi-clipboard2-plus" aria-hidden="true"></i> Muayeneye Başla
+            </a>
+            <form asp-action="DurumDegistir" method="post" onsubmit="return confirm('Randevu iptal edilsin mi?');">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <input type="hidden" name="durum" value="@((int)RandevuDurumu.IptalEdildi)" />
+                <button type="submit" class="btn btn-secondary"><i class="bi bi-x-circle" aria-hidden="true"></i> İptal Et</button>
+            </form>
+            <form asp-action="DurumDegistir" method="post" onsubmit="return confirm('Randevu gelmedi olarak işaretlensin mi?');">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <input type="hidden" name="durum" value="@((int)RandevuDurumu.Gelmedi)" />
+                <button type="submit" class="btn btn-secondary"><i class="bi bi-person-x" aria-hidden="true"></i> Gelmedi</button>
+            </form>
+        }
+        @if ((Model.Durum == RandevuDurumu.IptalEdildi || Model.Durum == RandevuDurumu.Gelmedi) && muayeneId == null)
+        {
+            <form asp-action="DurumDegistir" method="post" onsubmit="return confirm('Randevu tekrar planlansın mı?');">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <input type="hidden" name="durum" value="@((int)RandevuDurumu.Planlandi)" />
+                <button type="submit" class="btn btn-secondary">
+                    <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Planlandıya Al
+                </button>
+            </form>
+        }
+        @if (muayeneId == null)
+        {
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-secondary">
+                <i class="bi bi-pencil-square" aria-hidden="true"></i> Düzenle
+            </a>
+            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">
+                <i class="bi bi-trash3" aria-hidden="true"></i> Sil
+            </a>
+        }
+    </div>
+</div>
+
+<partial name="_Bildirim" />
+
+<section class="card" aria-labelledby="bilgiBaslik">
+    <div class="card-header"><h2 id="bilgiBaslik"><i class="bi bi-calendar2-week" aria-hidden="true"></i> Randevu Bilgileri</h2></div>
+    <div class="card-body py-2">
+        <dl class="bilgi-listesi">
+            <div>
+                <dt>@Html.DisplayNameFor(m => m.Baslangic)</dt>
+                <dd class="fw-bold">@Model.Baslangic.ToString("dd.MM.yyyy dddd HH:mm")</dd>
+            </div>
+            <div><dt>Bitiş</dt><dd>@bitis.ToString("dd.MM.yyyy HH:mm")</dd></div>
+            <div><dt>Süre</dt><dd>@Model.SureDakika dk</dd></div>
+            <div>
+                <dt>@Html.DisplayNameFor(m => m.HayvanId)</dt>
+                <dd>
+                    <a asp-controller="Hayvanlar" asp-action="Details" asp-route-id="@Model.HayvanId"
+                       class="fw-bold text-decoration-none">@Model.Hayvan.Ad</a> (@Model.Hayvan.Tur.GetDisplayName())
+                </dd>
+            </div>
+            <div>
+                <dt>Sahip</dt>
+                <dd>
+                    <a asp-controller="Sahipler" asp-action="Details" asp-route-id="@sahip.Id"
+                       class="text-decoration-none">@sahip.AdSoyad</a> · @sahip.Telefon
+                </dd>
+            </div>
+            <div><dt>@Html.DisplayNameFor(m => m.VeterinerId)</dt><dd>@Model.Veteriner!.AdSoyad</dd></div>
+            <div>
+                <dt>@Html.DisplayNameFor(m => m.Neden)</dt>
+                <dd class="satir-korunur">@(string.IsNullOrWhiteSpace(Model.Neden) ? "—" : Model.Neden)</dd>
+            </div>
+            <div><dt>@Html.DisplayNameFor(m => m.Durum)</dt><dd><partial name="_RandevuDurumuRozeti" model="Model.Durum" /></dd></div>
+            @if (muayeneId != null)
+            {
+                <div>
+                    <dt>Muayene</dt>
+                    <dd>
+                        <a asp-controller="Muayeneler" asp-action="Details" asp-route-id="@muayeneId"
+                           class="text-decoration-none">Muayene #@muayeneId</a>
+                    </dd>
+                </div>
+            }
+        </dl>
+    </div>
+</section>
