@@ -80,7 +80,10 @@
     </div>
     <div class="col-lg-7">
         <section class="card h-100" aria-labelledby="hayvanlarBaslik">
-            <div class="card-header"><h2 id="hayvanlarBaslik"><partial name="_Pati" /> Hayvanlar</h2></div>
+            <div class="card-header">
+                <h2 id="hayvanlarBaslik"><partial name="_Pati" /> Hayvanlar</h2>
+                <a asp-controller="Hayvanlar" asp-action="Create" asp-route-sahipId="@Model.Id" class="btn btn-sm btn-secondary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Ekle</a>
+            </div>
             @if (!Model.Hayvanlar.Any())
             {
                 <div class="bos-durum">
@@ -99,7 +102,7 @@
                             @foreach (var h in Model.Hayvanlar)
                             {
                                 <tr>
-                                    <td class="hucre-ana">@h.Ad</td>
+                                    <td><a asp-controller="Hayvanlar" asp-action="Details" asp-route-id="@h.Id" class="hucre-ana">@h.Ad</a></td>
                                     <td>@h.Tur.GetDisplayName()</td>
                                     <td>@h.Irk</td>
                                     <td>@h.Cinsiyet.GetDisplayName()</td>

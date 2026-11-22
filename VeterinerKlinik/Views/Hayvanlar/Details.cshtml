@@ -1,0 +1,156 @@
+@model HayvanDetayModel
+@{
+    var h = Model.Hayvan;
+    var sahip = h.Sahip!;
+    ViewData["Title"] = h.Ad;
+    var yas = h.DogumTarihi is DateTime dogum ? TarihHelper.YasMetni(dogum, DateTime.Today) : null;
+}
+
+<a asp-action="Index" class="geri-link"><i class="bi bi-arrow-left" aria-hidden="true"></i> Hayvanlar</a>
+<div class="sayfa-baslik">
+    <div class="profil">
+        <span class="avatar" aria-hidden="true"><partial name="_Pati" /></span>
+        <div>
+            <h1>@h.Ad</h1>
+            <div class="etiket-satiri">
+                <span>@h.Tur.GetDisplayName()@(string.IsNullOrWhiteSpace(h.Irk) ? "" : " · " + h.Irk)</span>
+                <span>@h.Cinsiyet.GetDisplayName()</span>
+                @if (yas != null)
+                {
+                    <span><i class="bi bi-calendar-event" aria-hidden="true"></i> @yas</span>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="sayfa-eylemler">
+        <a asp-controller="Muayeneler" asp-action="Create" asp-route-hayvanId="@h.Id" class="btn btn-primary"><i class="bi bi-clipboard2-plus" aria-hidden="true"></i> Muayene Ekle</a>
+        <a asp-controller="Asilar" asp-action="Create" asp-route-hayvanId="@h.Id" class="btn btn-secondary"><i class="bi bi-shield-plus" aria-hidden="true"></i> Aşı Ekle</a>
+        <a asp-action="Edit" asp-route-id="@h.Id" class="btn btn-secondary"><i class="bi bi-pencil-square" aria-hidden="true"></i> Düzenle</a>
+        <a asp-action="Delete" asp-route-id="@h.Id" class="btn btn-outline-danger"><i class="bi bi-trash3" aria-hidden="true"></i> Sil</a>
+    </div>
+</div>
+
+<partial name="_Bildirim" />
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-5">
+        <section class="card h-100" aria-labelledby="bilgiBaslik">
+            <div class="card-header"><h2 id="bilgiBaslik"><i class="bi bi-info-circle" aria-hidden="true"></i> Hasta Bilgileri</h2></div>
+            <div class="card-body py-2">
+                <dl class="bilgi-listesi">
+                    <div>
+                        <dt>@Html.DisplayNameFor(m => m.Hayvan.SahipId)</dt>
+                        <dd><a asp-controller="Sahipler" asp-action="Details" asp-route-id="@sahip.Id" class="fw-bold text-decoration-none">@sahip.AdSoyad</a> · @sahip.Telefon</dd>
+                    </div>
+                    <div><dt>@Html.DisplayNameFor(m => m.Hayvan.DogumTarihi)</dt><dd>@(h.DogumTarihi?.ToString("dd.MM.yyyy") ?? "—")</dd></div>
+                    <div><dt>@Html.DisplayNameFor(m => m.Hayvan.Kilo)</dt><dd>@(h.Kilo?.ToString("0.##") ?? "—")</dd></div>
+                    <div><dt>@Html.DisplayNameFor(m => m.Hayvan.Notlar)</dt><dd class="satir-korunur">@(string.IsNullOrWhiteSpace(h.Notlar) ? "—" : h.Notlar)</dd></div>
+                </dl>
+            </div>
+        </section>
+    </div>
+    <div class="col-lg-7">
+        <section class="card h-100" aria-labelledby="asiBaslik">
+            <div class="card-header">
+                <h2 id="asiBaslik"><i class="bi bi-shield-plus" aria-hidden="true"></i> Aşı Kayıtları</h2>
+                <a asp-controller="Asilar" asp-action="Create" asp-route-hayvanId="@h.Id" class="btn btn-sm btn-secondary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Ekle</a>
+            </div>
+            @if (!Model.AsiKayitlari.Any())
+            {
+                <div class="bos-durum">
+                    <span class="bos-durum-ikon" aria-hidden="true"><i class="bi bi-shield-plus"></i></span>
+                    <div class="bos-durum-baslik">Aşı kaydı yok.</div>
+                </div>
+            }
+            else
+            {
+                <div class="tablo-kart">
+                    <table class="table table-sm align-middle">
+                        <thead>
+                            <tr>
+                                <th scope="col">Aşı</th>
+                                <th scope="col">Uygulama</th>
+                                <th scope="col">Sonraki</th>
+                                <th scope="col">Durum</th>
+                                <th scope="col" class="text-end"><span class="visually-hidden">İşlemler</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var a in Model.AsiKayitlari)
+                            {
+                                <tr>
+                                    <td class="hucre-ana">
+                                        @a.AsiAdi
+                                        @if (a.VeterinerAdSoyad != null)
+                                        {
+                                            <span class="hucre-alt fw-normal">@a.VeterinerAdSoyad</span>
+                                        }
+                                    </td>
+                                    <td class="text-nowrap">@a.UygulamaTarihi.ToString("dd.MM.yyyy")</td>
+                                    <td class="text-nowrap">@(a.SonrakiTarih?.ToString("dd.MM.yyyy") ?? "—")</td>
+                                    <td><partial name="_AsiDurumuRozeti" model="a.Durum" /></td>
+                                    <td>
+                                        <div class="islemler">
+                                            <a asp-controller="Asilar" asp-action="Edit" asp-route-id="@a.Id" class="btn btn-ikon" title="Düzenle" aria-label="@a.AsiAdi kaydını düzenle"><i class="bi bi-pencil-square" aria-hidden="true"></i></a>
+                                            <a asp-controller="Asilar" asp-action="Delete" asp-route-id="@a.Id" class="btn btn-ikon tehlike" title="Sil" aria-label="@a.AsiAdi kaydını sil"><i class="bi bi-trash3" aria-hidden="true"></i></a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+    </div>
+</div>
+
+<section class="card" aria-labelledby="muayeneBaslik">
+    <div class="card-header">
+        <h2 id="muayeneBaslik"><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i> Muayene Geçmişi</h2>
+        <a asp-controller="Muayeneler" asp-action="Create" asp-route-hayvanId="@h.Id" class="btn btn-sm btn-secondary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Ekle</a>
+    </div>
+    @if (!h.Muayeneler.Any())
+    {
+        <div class="bos-durum">
+            <span class="bos-durum-ikon" aria-hidden="true"><i class="bi bi-clipboard2-pulse"></i></span>
+            <div class="bos-durum-baslik">Muayene kaydı yok.</div>
+        </div>
+    }
+    else
+    {
+        <div class="tablo-kart">
+            <table class="table table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">Tarih</th>
+                        <th scope="col">Veteriner</th>
+                        <th scope="col">Teşhis</th>
+                        <th scope="col">Tedavi</th>
+                        <th scope="col" class="text-end">Toplam</th>
+                        <th scope="col">Ödeme</th>
+                        <th scope="col" class="text-end"><span class="visually-hidden">İşlemler</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var m in h.Muayeneler)
+                    {
+                        <tr>
+                            <td class="text-nowrap">@m.Tarih.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>@m.Veteriner!.AdSoyad</td>
+                            <td class="hucre-ana">@m.Teshis</td>
+                            <td>@m.Tedavi</td>
+                            <td class="text-end tutar">@m.GenelToplam.TL()</td>
+                            <td><partial name="_OdemeDurumuRozeti" model="m.OdemeDurumu" /></td>
+                            <td>
+                                <div class="islemler">
+                                    <a asp-controller="Muayeneler" asp-action="Details" asp-route-id="@m.Id" class="btn btn-ikon" title="Detay" aria-label="Muayene #@m.Id detayı"><i class="bi bi-eye" aria-hidden="true"></i></a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
