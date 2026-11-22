@@ -1,0 +1,41 @@
+@model Sahip
+@{
+    ViewData["Title"] = "Sahip Sil";
+    var hayvanSayisi = (int)(ViewData["HayvanSayisi"] ?? 0);
+    var odemeSayisi = (int)(ViewData["OdemeSayisi"] ?? 0);
+}
+
+<h1>Sahip Sil</h1>
+<partial name="_Bildirim" />
+
+@if (hayvanSayisi == 0 && odemeSayisi == 0)
+{
+    <p class="text-danger">Bu sahibi silmek istediğinizden emin misiniz?</p>
+}
+
+<dl class="row">
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.AdSoyad)</dt>
+    <dd class="col-sm-9">@Model.AdSoyad</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Telefon)</dt>
+    <dd class="col-sm-9">@Model.Telefon</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Eposta)</dt>
+    <dd class="col-sm-9">@Model.Eposta</dd>
+    <dt class="col-sm-3">Hayvan Sayısı</dt>
+    <dd class="col-sm-9">@hayvanSayisi</dd>
+    <dt class="col-sm-3">Ödeme Sayısı</dt>
+    <dd class="col-sm-9">@odemeSayisi</dd>
+</dl>
+
+@if (hayvanSayisi > 0 || odemeSayisi > 0)
+{
+    <div class="alert alert-warning">Bu sahibe kayıtlı hayvan veya ödeme olduğu için silinemez.</div>
+    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Geri Dön</a>
+}
+else
+{
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Sil</button>
+        <a asp-action="Index" class="btn btn-secondary">Vazgeç</a>
+    </form>
+}

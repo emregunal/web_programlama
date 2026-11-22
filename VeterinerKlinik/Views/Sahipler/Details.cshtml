@@ -1,0 +1,81 @@
+@model Sahip
+@{
+    ViewData["Title"] = Model.AdSoyad;
+    var toplam = Model.Odemeler.Sum(o => o.Tutar);
+}
+
+<h1>@Model.AdSoyad</h1>
+<partial name="_Bildirim" />
+
+<dl class="row">
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Telefon)</dt>
+    <dd class="col-sm-9">@Model.Telefon</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Eposta)</dt>
+    <dd class="col-sm-9">@Model.Eposta</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Adres)</dt>
+    <dd class="col-sm-9">@Model.Adres</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.KayitTarihi)</dt>
+    <dd class="col-sm-9">@Model.KayitTarihi.ToString("dd.MM.yyyy")</dd>
+</dl>
+
+<div class="mb-4">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Düzenle</a>
+    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Sil</a>
+    <a asp-action="Index" class="btn btn-secondary">Listeye Dön</a>
+</div>
+
+<h2 class="h4">Hayvanlar</h2>
+@if (!Model.Hayvanlar.Any())
+{
+    <p class="text-muted">Kayıtlı hayvan yok.</p>
+}
+else
+{
+    <table class="table table-sm">
+        <thead>
+            <tr><th>Ad</th><th>Tür</th><th>Irk</th><th>Cinsiyet</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var h in Model.Hayvanlar)
+            {
+                <tr>
+                    <td>@h.Ad</td>
+                    <td>@h.Tur.GetDisplayName()</td>
+                    <td>@h.Irk</td>
+                    <td>@h.Cinsiyet.GetDisplayName()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h2 class="h4 mt-4">Ödemeler</h2>
+@if (!Model.Odemeler.Any())
+{
+    <p class="text-muted">Ödeme kaydı yok.</p>
+}
+else
+{
+    <table class="table table-sm">
+        <thead>
+            <tr><th>Tarih</th><th class="text-end">Tutar</th><th>Yöntem</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var o in Model.Odemeler)
+            {
+                <tr>
+                    <td>@o.Tarih.ToString("dd.MM.yyyy HH:mm")</td>
+                    <td class="text-end">@(o.Tutar.ToString("N2") + " ₺")</td>
+                    <td>@o.Yontem.GetDisplayName()</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>Toplam</th>
+                <th class="text-end">@(toplam.ToString("N2") + " ₺")</th>
+                <th></th>
+            </tr>
+        </tfoot>
+    </table>
+}

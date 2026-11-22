@@ -1,0 +1,17 @@
+@model Sahip
+@{
+    ViewData["Title"] = "Yeni Sahip";
+}
+
+<h1>Yeni Sahip</h1>
+<partial name="_Bildirim" />
+
+<form asp-action="Create" method="post">
+    <partial name="_SahipForm" model="Model" />
+    <button type="submit" class="btn btn-primary">Kaydet</button>
+    <a asp-action="Index" class="btn btn-secondary">Vazgeç</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
