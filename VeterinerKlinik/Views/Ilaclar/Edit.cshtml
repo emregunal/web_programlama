@@ -1,0 +1,20 @@
+@model Ilac
+@{
+    ViewData["Title"] = "İlaç Düzenle";
+}
+
+<h1>İlaç Düzenle</h1>
+<partial name="_Bildirim" />
+
+<div class="alert alert-info">Fiyat değişikliği daha önce yazılmış reçeteleri etkilemez.</div>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <partial name="_IlacForm" model="Model" />
+    <button type="submit" class="btn btn-primary">Kaydet</button>
+    <a asp-action="Index" class="btn btn-secondary">Vazgeç</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

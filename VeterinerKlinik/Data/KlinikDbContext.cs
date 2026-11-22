@@ -42,6 +42,8 @@ public class KlinikDbContext : DbContext
         b.Entity<Muayene>()
             .HasOne(m => m.Randevu).WithMany()
             .HasForeignKey(m => m.RandevuId).OnDelete(DeleteBehavior.SetNull);
+        b.Entity<Muayene>()
+            .HasIndex(m => m.RandevuId).IsUnique();
 
         b.Entity<ReceteKalemi>()
             .HasOne(r => r.Muayene).WithMany(m => m.ReceteKalemleri)
@@ -49,6 +51,8 @@ public class KlinikDbContext : DbContext
         b.Entity<ReceteKalemi>()
             .HasOne(r => r.Ilac).WithMany()
             .HasForeignKey(r => r.IlacId).OnDelete(DeleteBehavior.Restrict);
+        b.Entity<ReceteKalemi>()
+            .HasIndex(r => new { r.MuayeneId, r.IlacId }).IsUnique();
 
         b.Entity<AsiKaydi>()
             .HasOne(a => a.Hayvan).WithMany(h => h.AsiKayitlari)

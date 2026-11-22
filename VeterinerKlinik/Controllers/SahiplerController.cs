@@ -1,7 +1,7 @@
-using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VeterinerKlinik.Data;
+using VeterinerKlinik.Helpers;
 using VeterinerKlinik.Models;
 using VeterinerKlinik.ViewModels;
 
@@ -9,8 +9,6 @@ namespace VeterinerKlinik.Controllers;
 
 public class SahiplerController : Controller
 {
-    private static readonly CompareInfo TrKarsilastirma = new CultureInfo("tr-TR").CompareInfo;
-
     private readonly KlinikDbContext _db;
 
     public SahiplerController(KlinikDbContext db)
@@ -18,15 +16,8 @@ public class SahiplerController : Controller
         _db = db;
     }
 
-    
     private static string BosluksuzTelefon(string? telefon) =>
         string.Concat((telefon ?? string.Empty).Where(char.IsDigit));
-
-    private static bool Icerir(string? kaynak, string aranan) =>
-        !string.IsNullOrEmpty(kaynak) &&
-        TrKarsilastirma.IndexOf(kaynak, aranan, CompareOptions.IgnoreCase) >= 0;
-
-    
 
     private async Task<bool> TelefonBaskaSahipteVarMiAsync(string telefon, int? haricId)
     {
@@ -43,11 +34,11 @@ public class SahiplerController : Controller
         arama = arama?.Trim();
 
         var sahipler = await _db.Sahipler.AsNoTracking()
-            .OrderBy(s => s.Soyad).ThenBy(s => s.Ad)
             .Select(s => new SahipListeOgesi
             {
                 Id = s.Id,
-                AdSoyad = s.Ad + " " + s.Soyad,
+                Ad = s.Ad,
+                Soyad = s.Soyad,
                 Telefon = s.Telefon,
                 Eposta = s.Eposta,
                 HayvanSayisi = s.Hayvanlar.Count,
@@ -55,14 +46,16 @@ public class SahiplerController : Controller
             })
             .ToListAsync();
 
+        sahipler = sahipler.OrderBy(s => s.Soyad, TurkceMetin.Siralama).ThenBy(s => s.Ad, TurkceMetin.Siralama).ToList();
+
         if (!string.IsNullOrEmpty(arama))
         {
             var aramaBosluksuz = BosluksuzTelefon(arama);
             sahipler = sahipler.Where(s =>
-                Icerir(s.AdSoyad, arama) ||
-                Icerir(s.Telefon, arama) ||
-                (aramaBosluksuz.Length > 0 && Icerir(BosluksuzTelefon(s.Telefon), aramaBosluksuz)) ||
-                Icerir(s.Eposta, arama)).ToList();
+                TurkceMetin.Icerir(s.AdSoyad, arama) ||
+                TurkceMetin.Icerir(s.Telefon, arama) ||
+                (aramaBosluksuz.Length > 0 && TurkceMetin.Icerir(BosluksuzTelefon(s.Telefon), aramaBosluksuz)) ||
+                TurkceMetin.Icerir(s.Eposta, arama)).ToList();
         }
 
         ViewData["Arama"] = arama;
@@ -80,7 +73,7 @@ public class SahiplerController : Controller
         if (sahip == null) return NotFound();
 
         sahip.Odemeler = sahip.Odemeler.OrderByDescending(o => o.Tarih).ToList();
-        sahip.Hayvanlar = sahip.Hayvanlar.OrderBy(h => h.Ad).ToList();
+        sahip.Hayvanlar = sahip.Hayvanlar.OrderBy(h => h.Ad, TurkceMetin.Siralama).ToList();
         return View(sahip);
     }
 

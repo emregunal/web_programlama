@@ -1,0 +1,92 @@
+@model Muayene
+@{
+    ViewData["Title"] = "Reçete #" + Model.Id;
+    var hayvan = Model.Hayvan!;
+    var yas = hayvan.DogumTarihi is DateTime dogum ? TarihHelper.YasMetni(dogum, Model.Tarih) : null;
+    var sira = 0;
+}
+
+<div class="d-print-none mb-3">
+    <button type="button" class="btn btn-primary" onclick="window.print()">Yazdır</button>
+    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Muayeneye Dön</a>
+</div>
+
+<div class="border rounded p-4">
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h1 class="h3 mb-0">Veteriner Kliniği</h1>
+            <div class="fw-bold">REÇETE</div>
+        </div>
+        <div class="text-end">
+            <div>Reçete No: @Model.Id</div>
+            <div>Tarih: @Model.Tarih.ToString("dd.MM.yyyy")</div>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <h2 class="h6 text-uppercase text-muted">Hasta</h2>
+            <div>Ad: @hayvan.Ad</div>
+            <div>Tür: @hayvan.Tur.GetDisplayName()</div>
+            @if (!string.IsNullOrWhiteSpace(hayvan.Irk))
+            {
+                <div>Irk: @hayvan.Irk</div>
+            }
+            <div>Cinsiyet: @hayvan.Cinsiyet.GetDisplayName()</div>
+            @if (yas != null)
+            {
+                <div>Yaş: @yas</div>
+            }
+        </div>
+        <div class="col-md-6">
+            <h2 class="h6 text-uppercase text-muted">Sahip</h2>
+            <div>@hayvan.Sahip!.AdSoyad</div>
+            <div>Telefon: @hayvan.Sahip.Telefon</div>
+        </div>
+    </div>
+
+    <div class="mb-1"><strong>Veteriner:</strong> @Model.Veteriner!.AdSoyad</div>
+    <div class="mb-3 satir-korunur"><strong>Teşhis:</strong> @Model.Teshis</div>
+
+    @if (!Model.ReceteKalemleri.Any())
+    {
+        <p class="text-muted">Bu muayenede reçete yazılmadı.</p>
+    }
+    else
+    {
+        <table class="table table-bordered align-middle">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>İlaç</th>
+                    <th>Doz</th>
+                    <th>Kullanım Şekli</th>
+                    <th>Süre (gün)</th>
+                    <th>Miktar</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var k in Model.ReceteKalemleri)
+                {
+                    sira++;
+                    <tr>
+                        <td>@sira</td>
+                        <td>@k.Ilac!.AdVeForm</td>
+                        <td>@k.Doz</td>
+                        <td>@k.KullanimSekli</td>
+                        <td>@k.SureGun</td>
+                        <td>@k.Adet @k.Ilac.Birim</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    <div class="d-flex justify-content-end mt-5">
+        <div class="text-center" style="min-width: 220px;">
+            <div>Veteriner Hekim</div>
+            <div class="fw-bold">@Model.Veteriner.AdSoyad</div>
+            <div class="border-bottom mt-5"></div>
+        </div>
+    </div>
+</div>

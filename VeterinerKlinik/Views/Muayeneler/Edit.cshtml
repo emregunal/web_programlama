@@ -1,0 +1,18 @@
+@model Muayene
+@{
+    ViewData["Title"] = "Muayene Düzenle";
+}
+
+<h1>Muayene Düzenle</h1>
+<partial name="_Bildirim" />
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <partial name="_MuayeneForm" model="Model" />
+    <button type="submit" class="btn btn-primary">Kaydet</button>
+    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Vazgeç</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

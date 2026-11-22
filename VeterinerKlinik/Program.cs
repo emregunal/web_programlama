@@ -5,10 +5,15 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using VeterinerKlinik.Data;
+using VeterinerKlinik.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(o =>
+{
+    o.ModelBinderProviders.Insert(0, new OndalikModelBinderProvider());
+    TurkceDogrulamaMesajlari.Uygula(o.ModelBindingMessageProvider);
+});
 builder.Services.AddSingleton(HtmlEncoder.Create(UnicodeRanges.All));
 var baglanti = new SqliteConnectionStringBuilder(builder.Configuration.GetConnectionString("DefaultConnection"));
 if (!Path.IsPathRooted(baglanti.DataSource))

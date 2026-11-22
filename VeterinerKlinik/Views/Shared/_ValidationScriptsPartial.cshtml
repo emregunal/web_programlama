@@ -1,2 +1,29 @@
 ﻿<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
 <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+<script>
+    (function () {
+        $.extend($.validator.messages, {
+            required: "Bu alan zorunludur.",
+            remote: "Lütfen bu alanı düzeltin.",
+            email: "Geçerli bir e-posta adresi girin.",
+            url: "Geçerli bir web adresi girin.",
+            date: "Geçerli bir tarih girin.",
+            number: "Geçerli bir sayı girin.",
+            digits: "Sadece rakam girin.",
+            maxlength: $.validator.format("En fazla {0} karakter girin."),
+            minlength: $.validator.format("En az {0} karakter girin."),
+            range: $.validator.format("Değer {0} ile {1} arasında olmalıdır."),
+            max: $.validator.format("Değer en fazla {0} olabilir."),
+            min: $.validator.format("Değer en az {0} olabilir."),
+            step: $.validator.format("Değer {0} katı olmalıdır.")
+        });
+        function sayi(deger) { return parseFloat(String(deger).trim().replace(',', '.')); }
+        $.validator.methods.number = function (value, element) {
+            return this.optional(element) || /^\s*-?\d+([.,]\d{1,2})?\s*$/.test(value);
+        };
+        $.validator.methods.range = function (value, element, param) {
+            var s = sayi(value);
+            return this.optional(element) || (s >= sayi(param[0]) && s <= sayi(param[1]));
+        };
+    })();
+</script>

@@ -257,7 +257,8 @@ namespace VeterinerKlinik.Migrations
 
                     b.HasIndex("HayvanId");
 
-                    b.HasIndex("RandevuId");
+                    b.HasIndex("RandevuId")
+                        .IsUnique();
 
                     b.HasIndex("VeterinerId");
 
@@ -342,6 +343,10 @@ namespace VeterinerKlinik.Migrations
                     b.Property<int>("Adet")
                         .HasColumnType("INTEGER");
 
+                    b.Property<decimal>("BirimFiyat")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Doz")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -364,7 +369,8 @@ namespace VeterinerKlinik.Migrations
 
                     b.HasIndex("IlacId");
 
-                    b.HasIndex("MuayeneId");
+                    b.HasIndex("MuayeneId", "IlacId")
+                        .IsUnique();
 
                     b.ToTable("ReceteKalemleri");
                 });
