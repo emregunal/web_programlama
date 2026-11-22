@@ -3,14 +3,25 @@
     ViewData["Title"] = "Hata";
 }
 
-<h1 class="text-danger">Hata</h1>
-<h2 class="text-danger">İsteğiniz işlenirken bir hata oluştu.</h2>
+<div class="card silme-karti">
+    <div class="card-body">
+        <div class="silme-baslik">
+            <span class="silme-ikon" aria-hidden="true"><i class="bi bi-exclamation-octagon"></i></span>
+            <div>
+                <h1 class="h3 mb-1">Bir hata oluştu</h1>
+                <p class="text-secondary mb-0">İsteğiniz işlenirken bir sorun yaşandı. Lütfen işlemi tekrar deneyin. Sorun devam ederse sistem yöneticisine başvurun.</p>
+            </div>
+        </div>
 
-@if (Model.ShowRequestId)
-{
-    <p>
-        <strong>İstek No:</strong> <code>@Model.RequestId</code>
-    </p>
-}
+        @if (Model.ShowRequestId)
+        {
+            <p class="mb-3">
+                <strong>İstek No:</strong> <code>@Model.RequestId</code>
+            </p>
+        }
 
-<p>Lütfen işlemi tekrar deneyin. Sorun devam ederse sistem yöneticisine başvurun.</p>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary">
+            <i class="bi bi-house" aria-hidden="true"></i> Ana Sayfaya Dön
+        </a>
+    </div>
+</div>

@@ -1,65 +1,101 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var aktifController = ViewContext.RouteData.Values["controller"] as string;
+    var menu = new (string Controller, string Baslik, string Ikon)[]
+    {
+        ("Home", "Ana Sayfa", "bi-grid-1x2"),
+        ("Sahipler", "Sahipler", "bi-people"),
+        ("Hayvanlar", "Hayvanlar", "pati"),
+        ("Randevular", "Randevular", "bi-calendar2-week"),
+        ("Muayeneler", "Muayeneler", "bi-clipboard2-pulse"),
+        ("Ilaclar", "İlaçlar", "bi-capsule"),
+        ("Asilar", "Aşılar", "bi-shield-plus"),
+        ("Odemeler", "Ödemeler", "bi-wallet2")
+    };
+}
+<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b3b37" />
     <title>@ViewData["Title"] - Veteriner Kliniği</title>
     <script type="importmap"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700;6..12,800&family=Varela+Round&display=swap" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/VeterinerKlinik.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header class="d-print-none">
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Veteriner Kliniği</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Menüyü aç/kapat">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Sahipler" asp-action="Index">Sahipler</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Hayvanlar" asp-action="Index">Hayvanlar</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Randevular" asp-action="Index">Randevular</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Muayeneler" asp-action="Index">Muayeneler</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Ilaclar" asp-action="Index">İlaçlar</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Asilar" asp-action="Index">Aşılar</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Odemeler" asp-action="Index">Ödemeler</a>
-                        </li>
-                    </ul>
-                </div>
+    <a class="atla-link visually-hidden-focusable" href="#icerik">İçeriğe geç</a>
+
+    <div class="uygulama">
+        <aside class="kenar-cubuk offcanvas-lg offcanvas-start d-print-none" id="kenarCubuk" tabindex="-1" aria-label="Ana menü">
+            <div class="offcanvas-header d-lg-none">
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" data-bs-target="#kenarCubuk" aria-label="Menüyü kapat"></button>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+            <div class="offcanvas-body">
+                <a class="marka" asp-controller="Home" asp-action="Index">
+                    <span class="marka-logo"><partial name="_Pati" /></span>
+                    <span class="marka-metin">
+                        <span class="marka-ad">Veteriner Kliniği</span>
+                        <span class="marka-alt">Yönetim Paneli</span>
+                    </span>
+                </a>
+
+                <nav aria-labelledby="menuBaslik">
+                    <h2 class="menu-baslik" id="menuBaslik">Menü</h2>
+                    <ul class="menu">
+                        @foreach (var m in menu)
+                        {
+                            var aktif = string.Equals(aktifController, m.Controller, StringComparison.OrdinalIgnoreCase);
+                            <li>
+                                <a class="menu-link @(aktif ? "active" : null)" aria-current="@(aktif ? "page" : null)"
+                                   asp-controller="@m.Controller" asp-action="Index">
+                                    @if (m.Ikon == "pati")
+                                    {
+                                        <partial name="_Pati" />
+                                    }
+                                    else
+                                    {
+                                        <i class="bi @m.Ikon" aria-hidden="true"></i>
+                                    }
+                                    <span>@m.Baslik</span>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+
+                <div class="kenar-alt">&copy; @DateTime.Now.Year Veteriner Kliniği</div>
+            </div>
+        </aside>
+
+        <div class="ana-alan">
+            <header class="ust-cubuk d-lg-none d-print-none">
+                <button class="menu-ac" type="button" data-bs-toggle="offcanvas" data-bs-target="#kenarCubuk"
+                        aria-controls="kenarCubuk" aria-label="Menüyü aç">
+                    <i class="bi bi-list" aria-hidden="true"></i>
+                </button>
+                <a class="marka" asp-controller="Home" asp-action="Index">
+                    <span class="marka-logo"><partial name="_Pati" /></span>
+                    <span class="marka-ad">Veteriner Kliniği</span>
+                </a>
+            </header>
+
+            <main id="icerik" class="icerik" tabindex="-1">
+                <div class="container-xl">
+                    @RenderBody()
+                </div>
+            </main>
+
+            <footer class="alt-bilgi d-print-none d-lg-none">
+                <div class="container-xl">&copy; @DateTime.Now.Year Veteriner Kliniği</div>
+            </footer>
+        </div>
     </div>
 
-    <footer class="border-top footer text-muted d-print-none">
-        <div class="container">
-            &copy; 2026 - Veteriner Kliniği
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

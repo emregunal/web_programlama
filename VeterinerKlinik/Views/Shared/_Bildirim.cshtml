@@ -1,14 +1,16 @@
 @if (TempData["Mesaj"] is string mesaj)
 {
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        @mesaj
+    <div class="alert alert-success alert-dismissible fade show" role="status">
+        <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+        <div>@mesaj</div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
     </div>
 }
 @if (TempData["Hata"] is string hata)
 {
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        @hata
+        <i class="bi bi-x-circle-fill" aria-hidden="true"></i>
+        <div>@hata</div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
     </div>
 }
