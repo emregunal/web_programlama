@@ -1,0 +1,28 @@
+@model AsiKaydi
+@{
+    ViewData["Title"] = "Aşı Kaydı Düzenle";
+}
+
+<a asp-controller="Hayvanlar" asp-action="Details" asp-route-id="@Model.HayvanId" class="geri-link"><i class="bi bi-arrow-left" aria-hidden="true"></i> Hayvan detayı</a>
+<div class="sayfa-baslik">
+    <div>
+        <h1>Aşı Kaydı Düzenle</h1>
+        <p class="sayfa-aciklama">Aşı bilgilerini ve sonraki tarihi güncelleyin.</p>
+    </div>
+</div>
+<partial name="_Bildirim" />
+
+<form asp-action="Edit" method="post" class="card form-kart">
+    <input type="hidden" asp-for="Id" />
+    <div class="card-body">
+        <partial name="_AsiKaydiForm" model="Model" />
+    </div>
+    <div class="card-footer">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg" aria-hidden="true"></i> Kaydet</button>
+        <a asp-controller="Hayvanlar" asp-action="Details" asp-route-id="@Model.HayvanId" class="btn btn-secondary">Vazgeç</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

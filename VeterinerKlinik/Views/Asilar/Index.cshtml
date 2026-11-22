@@ -1,0 +1,132 @@
+@model IEnumerable<AsiKaydiListeOgesi>
+@{
+    ViewData["Title"] = "Aşılar";
+    var arama = ViewData["Arama"] as string;
+    var durumlar = (List<SelectListItem>)ViewData["Durumlar"]!;
+    var filtreVar = Context.Request.Query.Any(q => !string.IsNullOrEmpty(q.Value));
+}
+
+<div class="sayfa-baslik">
+    <div>
+        <h1>Aşılar</h1>
+        <p class="sayfa-aciklama">Aşı takvimi: gecikmiş ve @AsiTakvimi.YaklasanGun gün içinde yaklaşan aşılar en üstte.</p>
+    </div>
+    <div class="sayfa-eylemler">
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg" aria-hidden="true"></i> Yeni Aşı Kaydı
+        </a>
+    </div>
+</div>
+
+<partial name="_Bildirim" />
+
+<div class="ozet-grid">
+    <div class="ozet-kart">
+        <span class="ozet-ikon tehlike" aria-hidden="true"><i class="bi bi-exclamation-octagon"></i></span>
+        <div>
+            <div class="ozet-etiket">Gecikmiş</div>
+            <div class="ozet-deger">@ViewData["GecikmisSayisi"]</div>
+        </div>
+    </div>
+    <div class="ozet-kart">
+        <span class="ozet-ikon vurgu" aria-hidden="true"><i class="bi bi-alarm"></i></span>
+        <div>
+            <div class="ozet-etiket">@AsiTakvimi.YaklasanGun gün içinde</div>
+            <div class="ozet-deger">@ViewData["YaklasanSayisi"]</div>
+        </div>
+    </div>
+    <div class="ozet-kart">
+        <span class="ozet-ikon basari" aria-hidden="true"><i class="bi bi-shield-check"></i></span>
+        <div>
+            <div class="ozet-etiket">Güncel</div>
+            <div class="ozet-deger">@ViewData["GuncelSayisi"]</div>
+        </div>
+    </div>
+</div>
+
+<form method="get" asp-action="Index" class="filtre row g-2 align-items-end" role="search">
+    <div class="col-12 col-md">
+        <label for="filtreArama" class="form-label">Arama</label>
+        <div class="arama-kutusu">
+            <i class="bi bi-search" aria-hidden="true"></i>
+            <input type="search" id="filtreArama" name="arama" value="@arama" class="form-control"
+                   placeholder="Hayvan, sahip veya aşı ara" />
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <label for="filtreDurum" class="form-label">Durum</label>
+        <select id="filtreDurum" name="durum" asp-items="durumlar" class="form-select">
+            <option value="">Tümü</option>
+        </select>
+    </div>
+    <div class="col-sm-6 col-md-auto d-flex gap-2 justify-content-end">
+        @if (filtreVar)
+        {
+            <a asp-action="Index" class="btn btn-outline-secondary">Temizle</a>
+        }
+        <button type="submit" class="btn btn-outline-primary"><i class="bi bi-funnel" aria-hidden="true"></i> Filtrele</button>
+    </div>
+</form>
+
+<div class="tablo-kart">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th scope="col">Hayvan</th>
+                <th scope="col">Sahip</th>
+                <th scope="col">Aşı</th>
+                <th scope="col">Uygulama</th>
+                <th scope="col">Sonraki</th>
+                <th scope="col">Durum</th>
+                <th scope="col" class="text-end"><span class="visually-hidden">İşlemler</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var a in Model)
+            {
+                <tr>
+                    <td>
+                        <a asp-controller="Hayvanlar" asp-action="Details" asp-route-id="@a.HayvanId" class="hucre-ana">@a.HayvanAdi</a>
+                        <span class="hucre-alt">@a.HayvanTuru.GetDisplayName()</span>
+                    </td>
+                    <td>
+                        <a asp-controller="Sahipler" asp-action="Details" asp-route-id="@a.SahipId">@a.SahipAdSoyad</a>
+                        <span class="hucre-alt">@a.SahipTelefon</span>
+                    </td>
+                    <td class="hucre-ana">@a.AsiAdi</td>
+                    <td class="text-nowrap">@a.UygulamaTarihi.ToString("dd.MM.yyyy")</td>
+                    <td class="text-nowrap">@(a.SonrakiTarih?.ToString("dd.MM.yyyy") ?? "—")</td>
+                    <td><partial name="_AsiDurumuRozeti" model="a.Durum" /></td>
+                    <td>
+                        <div class="islemler">
+                            <a asp-action="Edit" asp-route-id="@a.Id" class="btn btn-ikon" title="Düzenle" aria-label="@a.HayvanAdi - @a.AsiAdi kaydını düzenle"><i class="bi bi-pencil-square" aria-hidden="true"></i></a>
+                            <a asp-action="Delete" asp-route-id="@a.Id" class="btn btn-ikon tehlike" title="Sil" aria-label="@a.HayvanAdi - @a.AsiAdi kaydını sil"><i class="bi bi-trash3" aria-hidden="true"></i></a>
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="7">
+                        <div class="bos-durum">
+                            <span class="bos-durum-ikon" aria-hidden="true"><i class="bi bi-shield-plus"></i></span>
+                            @if (filtreVar)
+                            {
+                                <div class="bos-durum-baslik">Filtrelere uyan aşı kaydı bulunamadı.</div>
+                                <p>Filtreleri değiştirerek tekrar deneyin.</p>
+                                <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Filtreleri temizle</a>
+                            }
+                            else
+                            {
+                                <div class="bos-durum-baslik">Henüz aşı kaydı yok.</div>
+                                <p>Hayvan detayından veya buradan aşı kaydı ekleyebilirsiniz.</p>
+                                <a asp-action="Create" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg" aria-hidden="true"></i> Yeni Aşı Kaydı</a>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
