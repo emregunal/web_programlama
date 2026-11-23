@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Sahipler";
     var arama = ViewData["Arama"] as string;
+    var kayitYonetebilir = YetkiKurallari.IzinVarMi(User, "Sahipler", "Create");
 }
 
 <div class="sayfa-baslik">
@@ -9,11 +10,14 @@
         <h1>Sahipler</h1>
         <p class="sayfa-aciklama">Hayvan sahiplerini ve iletişim bilgilerini yönetin.</p>
     </div>
-    <div class="sayfa-eylemler">
-        <a asp-action="Create" class="btn btn-primary">
-            <i class="bi bi-plus-lg" aria-hidden="true"></i> Yeni Sahip
-        </a>
-    </div>
+    @if (kayitYonetebilir)
+    {
+        <div class="sayfa-eylemler">
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-lg" aria-hidden="true"></i> Yeni Sahip
+            </a>
+        </div>
+    }
 </div>
 
 <partial name="_Bildirim" />
@@ -59,8 +63,11 @@
                     <td>
                         <div class="islemler">
                             <a asp-action="Details" asp-route-id="@s.Id" class="btn btn-ikon" title="Detay" aria-label="@s.AdSoyad detayı"><i class="bi bi-eye" aria-hidden="true"></i></a>
-                            <a asp-action="Edit" asp-route-id="@s.Id" class="btn btn-ikon" title="Düzenle" aria-label="@s.AdSoyad düzenle"><i class="bi bi-pencil-square" aria-hidden="true"></i></a>
-                            <a asp-action="Delete" asp-route-id="@s.Id" class="btn btn-ikon tehlike" title="Sil" aria-label="@s.AdSoyad sil"><i class="bi bi-trash3" aria-hidden="true"></i></a>
+                            @if (kayitYonetebilir)
+                            {
+                                <a asp-action="Edit" asp-route-id="@s.Id" class="btn btn-ikon" title="Düzenle" aria-label="@s.AdSoyad düzenle"><i class="bi bi-pencil-square" aria-hidden="true"></i></a>
+                                <a asp-action="Delete" asp-route-id="@s.Id" class="btn btn-ikon tehlike" title="Sil" aria-label="@s.AdSoyad sil"><i class="bi bi-trash3" aria-hidden="true"></i></a>
+                            }
                         </div>
                     </td>
                 </tr>
@@ -80,8 +87,11 @@
                             else
                             {
                                 <div class="bos-durum-baslik">Henüz sahip kaydı yok.</div>
-                                <p>İlk sahip kaydını oluşturarak başlayın.</p>
-                                <a asp-action="Create" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg" aria-hidden="true"></i> Yeni Sahip</a>
+                                @if (kayitYonetebilir)
+                                {
+                                    <p>İlk sahip kaydını oluşturarak başlayın.</p>
+                                    <a asp-action="Create" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg" aria-hidden="true"></i> Yeni Sahip</a>
+                                }
                             }
                         </div>
                     </td>

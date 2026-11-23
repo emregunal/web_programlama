@@ -8,7 +8,14 @@
 {
     <div class="alert alert-warning">
         <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
-        <div>Hayvan kaydı için önce <a asp-controller="Sahipler" asp-action="Create">sahip kaydı</a> oluşturulmalıdır.</div>
+        @if (YetkiKurallari.IzinVarMi(User, "Sahipler", "Create"))
+        {
+            <div>Hayvan kaydı için önce <a asp-controller="Sahipler" asp-action="Create">sahip kaydı</a> oluşturulmalıdır.</div>
+        }
+        else
+        {
+            <div>Hayvan kaydı için önce bir yöneticinin veya sekreterin sahip kaydı oluşturması gerekir.</div>
+        }
     </div>
 }
 <div class="row">

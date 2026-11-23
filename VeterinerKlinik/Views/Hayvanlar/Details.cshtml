@@ -4,6 +4,8 @@
     var sahip = h.Sahip!;
     ViewData["Title"] = h.Ad;
     var yas = h.DogumTarihi is DateTime dogum ? TarihHelper.YasMetni(dogum, DateTime.Today) : null;
+    var asiYonetebilir = YetkiKurallari.IzinVarMi(User, "Asilar", "Create");
+    var muayeneEkleyebilir = YetkiKurallari.IzinVarMi(User, "Muayeneler", "Create");
 }
 
 <a asp-action="Index" class="geri-link"><i class="bi bi-arrow-left" aria-hidden="true"></i> Hayvanlar</a>
@@ -23,9 +25,18 @@
         </div>
     </div>
     <div class="sayfa-eylemler">
-        <a asp-controller="Muayeneler" asp-action="Create" asp-route-hayvanId="@h.Id" class="btn btn-primary"><i class="bi bi-clipboard2-plus" aria-hidden="true"></i> Muayene Ekle</a>
-        <a asp-controller="Asilar" asp-action="Create" asp-route-hayvanId="@h.Id" class="btn btn-secondary"><i class="bi bi-shield-plus" aria-hidden="true"></i> Aşı Ekle</a>
-        <a asp-controller="Randevular" asp-action="Create" asp-route-hayvanId="@h.Id" class="btn btn-secondary"><i class="bi bi-calendar-plus" aria-hidden="true"></i> Randevu Ver</a>
+        @if (muayeneEkleyebilir)
+        {
+            <a asp-controller="Muayeneler" asp-action="Create" asp-route-hayvanId="@h.Id" class="btn btn-primary"><i class="bi bi-clipboard2-plus" aria-hidden="true"></i> Muayene Ekle</a>
+        }
+        @if (asiYonetebilir)
+        {
+            <a asp-controller="Asilar" asp-action="Create" asp-route-hayvanId="@h.Id" class="btn btn-secondary"><i class="bi bi-shield-plus" aria-hidden="true"></i> Aşı Ekle</a>
+        }
+        @if (YetkiKurallari.IzinVarMi(User, "Randevular", "Create"))
+        {
+            <a asp-controller="Randevular" asp-action="Create" asp-route-hayvanId="@h.Id" class="btn btn-secondary"><i class="bi bi-calendar-plus" aria-hidden="true"></i> Randevu Ver</a>
+        }
         <a asp-action="Edit" asp-route-id="@h.Id" class="btn btn-secondary"><i class="bi bi-pencil-square" aria-hidden="true"></i> Düzenle</a>
         <a asp-action="Delete" asp-route-id="@h.Id" class="btn btn-outline-danger"><i class="bi bi-trash3" aria-hidden="true"></i> Sil</a>
     </div>
@@ -54,7 +65,10 @@
         <section class="card h-100" aria-labelledby="asiBaslik">
             <div class="card-header">
                 <h2 id="asiBaslik"><i class="bi bi-shield-plus" aria-hidden="true"></i> Aşı Kayıtları</h2>
-                <a asp-controller="Asilar" asp-action="Create" asp-route-hayvanId="@h.Id" class="btn btn-sm btn-secondary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Ekle</a>
+                @if (asiYonetebilir)
+                {
+                    <a asp-controller="Asilar" asp-action="Create" asp-route-hayvanId="@h.Id" class="btn btn-sm btn-secondary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Ekle</a>
+                }
             </div>
             @if (!Model.AsiKayitlari.Any())
             {
@@ -91,10 +105,13 @@
                                     <td class="text-nowrap">@(a.SonrakiTarih?.ToString("dd.MM.yyyy") ?? "—")</td>
                                     <td><partial name="_AsiDurumuRozeti" model="a.Durum" /></td>
                                     <td>
-                                        <div class="islemler">
-                                            <a asp-controller="Asilar" asp-action="Edit" asp-route-id="@a.Id" class="btn btn-ikon" title="Düzenle" aria-label="@a.AsiAdi kaydını düzenle"><i class="bi bi-pencil-square" aria-hidden="true"></i></a>
-                                            <a asp-controller="Asilar" asp-action="Delete" asp-route-id="@a.Id" class="btn btn-ikon tehlike" title="Sil" aria-label="@a.AsiAdi kaydını sil"><i class="bi bi-trash3" aria-hidden="true"></i></a>
-                                        </div>
+                                        @if (asiYonetebilir)
+                                        {
+                                            <div class="islemler">
+                                                <a asp-controller="Asilar" asp-action="Edit" asp-route-id="@a.Id" class="btn btn-ikon" title="Düzenle" aria-label="@a.AsiAdi kaydını düzenle"><i class="bi bi-pencil-square" aria-hidden="true"></i></a>
+                                                <a asp-controller="Asilar" asp-action="Delete" asp-route-id="@a.Id" class="btn btn-ikon tehlike" title="Sil" aria-label="@a.AsiAdi kaydını sil"><i class="bi bi-trash3" aria-hidden="true"></i></a>
+                                            </div>
+                                        }
                                     </td>
                                 </tr>
                             }
@@ -109,7 +126,10 @@
 <section class="card" aria-labelledby="muayeneBaslik">
     <div class="card-header">
         <h2 id="muayeneBaslik"><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i> Muayene Geçmişi</h2>
-        <a asp-controller="Muayeneler" asp-action="Create" asp-route-hayvanId="@h.Id" class="btn btn-sm btn-secondary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Ekle</a>
+        @if (muayeneEkleyebilir)
+        {
+            <a asp-controller="Muayeneler" asp-action="Create" asp-route-hayvanId="@h.Id" class="btn btn-sm btn-secondary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Ekle</a>
+        }
     </div>
     @if (!h.Muayeneler.Any())
     {

@@ -7,6 +7,9 @@
     var toplamOdenen = muayeneler.Sum(m => m.OdenenToplam);
     var toplamKalan = muayeneler.Sum(m => m.KalanBorc);
     var basHarfler = (string.Concat(Model.Ad.Take(1)) + string.Concat(Model.Soyad.Take(1))).ToUpper();
+    var kayitYonetebilir = YetkiKurallari.IzinVarMi(User, "Sahipler", "Edit");
+    var odemeAlabilir = YetkiKurallari.IzinVarMi(User, "Odemeler", "Create");
+    var odemeDetayiGorebilir = YetkiKurallari.OkuyabilirMi(User, "Odemeler");
 }
 
 <a asp-action="Index" class="geri-link"><i class="bi bi-arrow-left" aria-hidden="true"></i> Sahipler</a>
@@ -25,10 +28,13 @@
             </div>
         </div>
     </div>
-    <div class="sayfa-eylemler">
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary"><i class="bi bi-pencil-square" aria-hidden="true"></i> Düzenle</a>
-        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger"><i class="bi bi-trash3" aria-hidden="true"></i> Sil</a>
-    </div>
+    @if (kayitYonetebilir)
+    {
+        <div class="sayfa-eylemler">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary"><i class="bi bi-pencil-square" aria-hidden="true"></i> Düzenle</a>
+            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger"><i class="bi bi-trash3" aria-hidden="true"></i> Sil</a>
+        </div>
+    }
 </div>
 
 <partial name="_Bildirim" />
@@ -154,7 +160,7 @@
                             <td><partial name="_OdemeDurumuRozeti" model="m.OdemeDurumu" /></td>
                             <td>
                                 <div class="islemler">
-                                    @if (m.KalanBorc > 0)
+                                    @if (odemeAlabilir && m.KalanBorc > 0)
                                     {
                                         <a asp-controller="Odemeler" asp-action="Create" asp-route-muayeneId="@m.Id"
                                            class="btn btn-sm btn-success"><i class="bi bi-cash-coin" aria-hidden="true"></i> Ödeme Al</a>
@@ -211,10 +217,13 @@
                             <td class="text-end tutar">@o.Tutar.TL()</td>
                             <td>@o.Yontem.GetDisplayName()</td>
                             <td>
-                                <div class="islemler">
-                                    <a asp-controller="Odemeler" asp-action="Details" asp-route-id="@o.Id"
-                                       class="btn btn-ikon" title="Makbuz" aria-label="Makbuz #@o.Id"><i class="bi bi-receipt" aria-hidden="true"></i></a>
-                                </div>
+                                @if (odemeDetayiGorebilir)
+                                {
+                                    <div class="islemler">
+                                        <a asp-controller="Odemeler" asp-action="Details" asp-route-id="@o.Id"
+                                           class="btn btn-ikon" title="Makbuz" aria-label="Makbuz #@o.Id"><i class="bi bi-receipt" aria-hidden="true"></i></a>
+                                    </div>
+                                }
                             </td>
                         </tr>
                     }

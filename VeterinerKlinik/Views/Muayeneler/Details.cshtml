@@ -4,6 +4,9 @@
     var hayvan = m.Hayvan!;
     var sahip = hayvan.Sahip!;
     var ilaclar = (SelectList)ViewData["Ilaclar"]!;
+    var muayeneYonetebilir = YetkiKurallari.IzinVarMi(User, "Muayeneler", "Edit");
+    var odemeAlabilir = YetkiKurallari.IzinVarMi(User, "Odemeler", "Create");
+    var odemeDetayiGorebilir = YetkiKurallari.OkuyabilirMi(User, "Odemeler");
     ViewData["Title"] = "Muayene #" + m.Id;
 }
 
@@ -18,10 +21,19 @@
         </div>
     </div>
     <div class="sayfa-eylemler">
-        <a asp-action="Edit" asp-route-id="@m.Id" class="btn btn-primary"><i class="bi bi-pencil-square" aria-hidden="true"></i> Düzenle</a>
+        @if (muayeneYonetebilir)
+        {
+            <a asp-action="Edit" asp-route-id="@m.Id" class="btn btn-primary"><i class="bi bi-pencil-square" aria-hidden="true"></i> Düzenle</a>
+        }
         <a asp-action="Recete" asp-route-id="@m.Id" class="btn btn-secondary"><i class="bi bi-prescription2" aria-hidden="true"></i> Reçete</a>
-        <a asp-controller="Odemeler" asp-action="Fatura" asp-route-id="@m.Id" class="btn btn-secondary"><i class="bi bi-file-earmark-text" aria-hidden="true"></i> Fatura</a>
-        <a asp-action="Delete" asp-route-id="@m.Id" class="btn btn-outline-danger"><i class="bi bi-trash3" aria-hidden="true"></i> Sil</a>
+        @if (odemeDetayiGorebilir)
+        {
+            <a asp-controller="Odemeler" asp-action="Fatura" asp-route-id="@m.Id" class="btn btn-secondary"><i class="bi bi-file-earmark-text" aria-hidden="true"></i> Fatura</a>
+        }
+        @if (muayeneYonetebilir)
+        {
+            <a asp-action="Delete" asp-route-id="@m.Id" class="btn btn-outline-danger"><i class="bi bi-trash3" aria-hidden="true"></i> Sil</a>
+        }
     </div>
 </div>
 
@@ -63,7 +75,7 @@
                         <dd class="@(m.KalanBorc > 0 ? "text-danger" : null)">@m.KalanBorc.TL()</dd>
                     </div>
                 </dl>
-                @if (m.KalanBorc > 0)
+                @if (odemeAlabilir && m.KalanBorc > 0)
                 {
                     <a asp-controller="Odemeler" asp-action="Create" asp-route-muayeneId="@m.Id" class="btn btn-success w-100 mt-3"><i class="bi bi-cash-coin" aria-hidden="true"></i> Ödeme Al</a>
                 }
@@ -85,7 +97,10 @@
         <div class="bos-durum pb-3">
             <span class="bos-durum-ikon" aria-hidden="true"><i class="bi bi-capsule"></i></span>
             <div class="bos-durum-baslik">Reçeteye ilaç eklenmedi.</div>
-            <p class="mb-0">Aşağıdaki formdan ilaç ekleyebilirsiniz.</p>
+            @if (muayeneYonetebilir)
+            {
+                <p class="mb-0">Aşağıdaki formdan ilaç ekleyebilirsiniz.</p>
+            }
         </div>
     }
     else
@@ -116,10 +131,13 @@
                             <td class="text-end tutar">@k.BirimFiyat.TL()</td>
                             <td class="text-end tutar">@k.Tutar.TL()</td>
                             <td>
-                                <form asp-action="ReceteKalemiSil" asp-route-id="@k.Id" method="post" class="islemler">
-                                    <button type="submit" class="btn btn-ikon tehlike" title="Reçeteden çıkar" aria-label="@k.Ilac.Ad reçeteden çıkar"
-                                            onclick="return confirm('Bu ilacı reçeteden çıkarmak istiyor musunuz?');"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
-                                </form>
+                                @if (muayeneYonetebilir)
+                                {
+                                    <form asp-action="ReceteKalemiSil" asp-route-id="@k.Id" method="post" class="islemler">
+                                        <button type="submit" class="btn btn-ikon tehlike" title="Reçeteden çıkar" aria-label="@k.Ilac.Ad reçeteden çıkar"
+                                                onclick="return confirm('Bu ilacı reçeteden çıkarmak istiyor musunuz?');"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+                                    </form>
+                                }
                             </td>
                         </tr>
                     }
@@ -128,50 +146,53 @@
         </div>
     }
 
-    <div class="card-footer d-block" id="ilac-ekle">
-        <h3 class="h6 mb-3 d-flex align-items-center gap-2"><i class="bi bi-plus-circle text-primary" aria-hidden="true"></i> İlaç Ekle</h3>
-        @if (!ilaclar.Any())
-        {
-            <div class="alert alert-warning">
-                <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
-                <div>Reçeteye ilaç eklemek için önce <a asp-controller="Ilaclar" asp-action="Create">ilaç tanımlayın</a>.</div>
-            </div>
-        }
-        <form asp-action="ReceteKalemiEkle" asp-route-muayeneId="@m.Id" asp-fragment="ilac-ekle" method="post">
-            <div class="row g-3">
-                <div class="col-md-6 col-xl-4">
-                    <label asp-for="YeniKalem.IlacId" class="form-label"></label>
-                    <select asp-for="YeniKalem.IlacId" asp-items="ilaclar" class="form-select">
-                        <option value="">-- İlaç seçin --</option>
-                    </select>
-                    <span asp-validation-for="YeniKalem.IlacId" class="text-danger"></span>
+    @if (muayeneYonetebilir)
+    {
+        <div class="card-footer d-block" id="ilac-ekle">
+            <h3 class="h6 mb-3 d-flex align-items-center gap-2"><i class="bi bi-plus-circle text-primary" aria-hidden="true"></i> İlaç Ekle</h3>
+            @if (!ilaclar.Any())
+            {
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+                    <div>Reçeteye ilaç eklemek için önce <a asp-controller="Ilaclar" asp-action="Create">ilaç tanımlayın</a>.</div>
                 </div>
-                <div class="col-md-6 col-xl-3">
-                    <label asp-for="YeniKalem.Doz" class="form-label"></label>
-                    <input asp-for="YeniKalem.Doz" class="form-control" placeholder="ör. 1 tablet" />
-                    <span asp-validation-for="YeniKalem.Doz" class="text-danger"></span>
+            }
+            <form asp-action="ReceteKalemiEkle" asp-route-muayeneId="@m.Id" asp-fragment="ilac-ekle" method="post">
+                <div class="row g-3">
+                    <div class="col-md-6 col-xl-4">
+                        <label asp-for="YeniKalem.IlacId" class="form-label"></label>
+                        <select asp-for="YeniKalem.IlacId" asp-items="ilaclar" class="form-select">
+                            <option value="">-- İlaç seçin --</option>
+                        </select>
+                        <span asp-validation-for="YeniKalem.IlacId" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 col-xl-3">
+                        <label asp-for="YeniKalem.Doz" class="form-label"></label>
+                        <input asp-for="YeniKalem.Doz" class="form-control" placeholder="ör. 1 tablet" />
+                        <span asp-validation-for="YeniKalem.Doz" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 col-xl-5">
+                        <label asp-for="YeniKalem.KullanimSekli" class="form-label"></label>
+                        <input asp-for="YeniKalem.KullanimSekli" class="form-control" placeholder="ör. Günde 2 kez, tok karnına" />
+                        <span asp-validation-for="YeniKalem.KullanimSekli" class="text-danger"></span>
+                    </div>
+                    <div class="col-6 col-md-3 col-xl-2">
+                        <label asp-for="YeniKalem.SureGun" class="form-label"></label>
+                        <input asp-for="YeniKalem.SureGun" class="form-control" />
+                        <span asp-validation-for="YeniKalem.SureGun" class="text-danger"></span>
+                    </div>
+                    <div class="col-6 col-md-3 col-xl-2">
+                        <label asp-for="YeniKalem.Adet" class="form-label"></label>
+                        <input asp-for="YeniKalem.Adet" class="form-control" />
+                        <span asp-validation-for="YeniKalem.Adet" class="text-danger"></span>
+                    </div>
+                    <div class="col-12 col-xl-auto d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Reçeteye Ekle</button>
+                    </div>
                 </div>
-                <div class="col-md-6 col-xl-5">
-                    <label asp-for="YeniKalem.KullanimSekli" class="form-label"></label>
-                    <input asp-for="YeniKalem.KullanimSekli" class="form-control" placeholder="ör. Günde 2 kez, tok karnına" />
-                    <span asp-validation-for="YeniKalem.KullanimSekli" class="text-danger"></span>
-                </div>
-                <div class="col-6 col-md-3 col-xl-2">
-                    <label asp-for="YeniKalem.SureGun" class="form-label"></label>
-                    <input asp-for="YeniKalem.SureGun" class="form-control" />
-                    <span asp-validation-for="YeniKalem.SureGun" class="text-danger"></span>
-                </div>
-                <div class="col-6 col-md-3 col-xl-2">
-                    <label asp-for="YeniKalem.Adet" class="form-label"></label>
-                    <input asp-for="YeniKalem.Adet" class="form-control" />
-                    <span asp-validation-for="YeniKalem.Adet" class="text-danger"></span>
-                </div>
-                <div class="col-12 col-xl-auto d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Reçeteye Ekle</button>
-                </div>
-            </div>
-        </form>
-    </div>
+            </form>
+        </div>
+    }
 </section>
 
 <section class="card" aria-labelledby="odemeler">
@@ -205,10 +226,13 @@
                             <td class="text-end tutar">@o.Tutar.TL()</td>
                             <td>@o.Aciklama</td>
                             <td>
-                                <div class="islemler">
-                                    <a asp-controller="Odemeler" asp-action="Details" asp-route-id="@o.Id"
-                                       class="btn btn-ikon" title="Makbuz" aria-label="Makbuz #@o.Id"><i class="bi bi-receipt" aria-hidden="true"></i></a>
-                                </div>
+                                @if (odemeDetayiGorebilir)
+                                {
+                                    <div class="islemler">
+                                        <a asp-controller="Odemeler" asp-action="Details" asp-route-id="@o.Id"
+                                           class="btn btn-ikon" title="Makbuz" aria-label="Makbuz #@o.Id"><i class="bi bi-receipt" aria-hidden="true"></i></a>
+                                    </div>
+                                }
                             </td>
                         </tr>
                     }
