@@ -34,12 +34,23 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         o.Events.OnValidatePrincipal = OturumDogrulayici.DogrulaAsync;
     });
 builder.Services.AddSingleton(HtmlEncoder.Create(UnicodeRanges.All));
-var baglanti = new SqliteConnectionStringBuilder(builder.Configuration.GetConnectionString("DefaultConnection"));
-if (!Path.IsPathRooted(baglanti.DataSource))
-    baglanti.DataSource = Path.Combine(builder.Environment.ContentRootPath, baglanti.DataSource);
+var yerelAyarlar = YerelAyarlar.Oku(builder.Environment.ContentRootPath);
+var postgresUrl = builder.Configuration["DATABASE_URL"] ?? yerelAyarlar.GetValueOrDefault("DATABASE_URL");
+if (string.IsNullOrWhiteSpace(postgresUrl))
+{
+    var baglanti = new SqliteConnectionStringBuilder(builder.Configuration.GetConnectionString("DefaultConnection"));
+    if (!Path.IsPathRooted(baglanti.DataSource))
+        baglanti.DataSource = Path.Combine(builder.Environment.ContentRootPath, baglanti.DataSource);
 
-builder.Services.AddDbContext<KlinikDbContext>(options =>
-    options.UseSqlite(baglanti.ToString(), o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
+    builder.Services.AddDbContext<KlinikDbContext>(options =>
+        options.UseSqlite(baglanti.ToString(), o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
+}
+else
+{
+    var baglanti = PostgreSqlBaglantisi.Olustur(postgresUrl);
+    builder.Services.AddDbContext<KlinikDbContext, PostgreSqlKlinikDbContext>(options =>
+        options.UseNpgsql(baglanti, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
+}
 
 var app = builder.Build();
 
@@ -47,7 +58,8 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<KlinikDbContext>();
     db.Database.Migrate();
-    await KullaniciTohumu.OlusturAsync(scope.ServiceProvider);
+    var yoneticiParolasi = builder.Configuration["KLINIK_ADMIN_PASSWORD"] ?? yerelAyarlar.GetValueOrDefault("KLINIK_ADMIN_PASSWORD");
+    await KullaniciTohumu.OlusturAsync(scope.ServiceProvider, yoneticiParolasi);
 }
 
 var trKultur = new CultureInfo("tr-TR");

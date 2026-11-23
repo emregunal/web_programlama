@@ -2,7 +2,7 @@
 
 Üniversite ders projesi. Bir veteriner kliniğinin sahip, hayvan, randevu, muayene, reçete, aşı ve ödeme süreçlerini yöneten web uygulaması.
 
-Teknolojiler: ASP.NET Core MVC (.NET 10, C#), Entity Framework Core 10, SQLite.
+Teknolojiler: ASP.NET Core MVC (.NET 10, C#), Entity Framework Core 10, SQLite ve PostgreSQL.
 
 ## Çalıştırma
 
@@ -12,8 +12,17 @@ dotnet run --project VeterinerKlinik
 ```
 
 - İlk açılışta `Database.Migrate()` çalışır; `klinik.db` otomatik oluşur ve örnek veriler (3 veteriner, 6 ilaç, 4 aşı) yüklenir.
-- Yeni migration eklemek için: `dotnet ef migrations add <Ad> --project VeterinerKlinik`
+- SQLite migration'ı eklemek için `dotnet ef migrations add <Ad> --project VeterinerKlinik --context KlinikDbContext -- --DATABASE_URL=` komutunu kullanın.
 - `*.db` dosyaları git'e eklenmez.
+
+### Neon PostgreSQL kurulumu
+
+1. Neon'da **Connect** ekranını açıp hedef veritabanının bağlantı URL'sini kopyalayın. Uygulama havuzlu Neon URL'sini doğrudan uç noktaya dönüştürür.
+2. Proje kökündeki `.env` dosyasına `DATABASE_URL=` anahtarıyla bağlantı URL'sini ekleyin. Dosya yoksa `.env.example` üzerinden oluşturabilirsiniz.
+3. İlk `admin` hesabını açmak için `.env` dosyasında `KLINIK_ADMIN_PASSWORD` değerini belirleyin.
+4. `dotnet run --project VeterinerKlinik` komutuyla uygulamayı başlatın. EF Core PostgreSQL migration'larını uygular. `DATABASE_URL` boşsa uygulama SQLite kullanır.
+
+PostgreSQL migration'ları `VeterinerKlinik/Migrations/PostgreSql` altında tutulur. Yeni bir migration eklemek için Neon yapılandırması etkin durumdayken `dotnet ef migrations add <Ad> --project VeterinerKlinik --context PostgreSqlKlinikDbContext --output-dir Migrations/PostgreSql` komutunu kullanın.
 
 ## Giriş bilgileri (demo)
 

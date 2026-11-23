@@ -5,7 +5,9 @@ namespace VeterinerKlinik.Data;
 
 public class KlinikDbContext : DbContext
 {
-    public KlinikDbContext(DbContextOptions<KlinikDbContext> options) : base(options) { }
+    public KlinikDbContext(DbContextOptions<KlinikDbContext> options) : this((DbContextOptions)options) { }
+
+    protected KlinikDbContext(DbContextOptions options) : base(options) { }
 
     public DbSet<Sahip> Sahipler => Set<Sahip>();
     public DbSet<Hayvan> Hayvanlar => Set<Hayvan>();
