@@ -9,8 +9,13 @@
         ("Muayeneler", "Muayeneler", "bi-clipboard2-pulse"),
         ("Ilaclar", "İlaçlar", "bi-capsule"),
         ("Asilar", "Aşılar", "bi-shield-plus"),
-        ("Odemeler", "Ödemeler", "bi-wallet2")
+        ("Odemeler", "Ödemeler", "bi-wallet2"),
+        ("Kullanicilar", "Kullanıcılar", "bi-person-gear")
     };
+    var gorunenMenu = menu.Where(m => YetkiKurallari.OkuyabilirMi(User, m.Controller)).ToList();
+    var girisli = User.Identity?.IsAuthenticated == true;
+    var adSoyad = User.AdSoyad();
+    var basHarfler = string.Concat(adSoyad.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(k => char.ToUpper(k[0])));
 }
 <!DOCTYPE html>
 <html lang="tr">
@@ -26,6 +31,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/hesap.css" asp-append-version="true" />
 </head>
 <body>
     <a class="atla-link visually-hidden-focusable" href="#icerik">İçeriğe geç</a>
@@ -47,7 +53,7 @@
                 <nav aria-labelledby="menuBaslik">
                     <h2 class="menu-baslik" id="menuBaslik">Menü</h2>
                     <ul class="menu">
-                        @foreach (var m in menu)
+                        @foreach (var m in gorunenMenu)
                         {
                             var aktif = string.Equals(aktifController, m.Controller, StringComparison.OrdinalIgnoreCase);
                             <li>
@@ -68,7 +74,24 @@
                     </ul>
                 </nav>
 
-                <div class="kenar-alt">&copy; @DateTime.Now.Year Veteriner Kliniği</div>
+                <div class="kenar-alt">
+                    @if (girisli)
+                    {
+                        <div class="kullanici-kutusu">
+                            <span class="kullanici-avatar" aria-hidden="true">@basHarfler</span>
+                            <div class="kullanici-bilgi">
+                                <span class="kullanici-ad">@adSoyad</span>
+                                <span class="kullanici-rol">@User.RolAdi()</span>
+                            </div>
+                            <form asp-controller="Hesap" asp-action="Cikis" method="post" class="kullanici-cikis">
+                                <button type="submit" class="btn-cikis" title="Çıkış" aria-label="Çıkış yap">
+                                    <i class="bi bi-box-arrow-right" aria-hidden="true"></i> Çıkış
+                                </button>
+                            </form>
+                        </div>
+                    }
+                    <div class="kenar-telif">&copy; @DateTime.Now.Year Veteriner Kliniği</div>
+                </div>
             </div>
         </aside>
 

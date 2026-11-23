@@ -1,0 +1,40 @@
+@model GirisModel
+@{
+    ViewData["Title"] = "Giriş";
+    Layout = "_GirisLayout";
+}
+
+<div class="giris-kart">
+    <div class="giris-marka">
+        <span class="giris-logo"><partial name="_Pati" /></span>
+        <h1>Veteriner Kliniği</h1>
+        <p>Yönetim paneline giriş yapın</p>
+    </div>
+
+    <form asp-action="Giris" method="post" novalidate>
+        <input type="hidden" asp-for="ReturnUrl" />
+        <div asp-validation-summary="All" class="alert alert-danger giris-uyari" role="alert"></div>
+
+        <div class="mb-3">
+            <label asp-for="KullaniciAdi" class="form-label"></label>
+            <input asp-for="KullaniciAdi" class="form-control" autocomplete="username" autofocus />
+        </div>
+        <div class="mb-3">
+            <label asp-for="Parola" class="form-label"></label>
+            <input asp-for="Parola" class="form-control" autocomplete="current-password" />
+        </div>
+        <div class="form-check mb-4">
+            <input asp-for="BeniHatirla" class="form-check-input" />
+            <label asp-for="BeniHatirla" class="form-check-label"></label>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> Giriş Yap
+        </button>
+    </form>
+
+    <p class="giris-not">Demo hesaplar README'de.</p>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -25,6 +25,7 @@
     <div class="sayfa-eylemler">
         <a asp-controller="Muayeneler" asp-action="Create" asp-route-hayvanId="@h.Id" class="btn btn-primary"><i class="bi bi-clipboard2-plus" aria-hidden="true"></i> Muayene Ekle</a>
         <a asp-controller="Asilar" asp-action="Create" asp-route-hayvanId="@h.Id" class="btn btn-secondary"><i class="bi bi-shield-plus" aria-hidden="true"></i> Aşı Ekle</a>
+        <a asp-controller="Randevular" asp-action="Create" asp-route-hayvanId="@h.Id" class="btn btn-secondary"><i class="bi bi-calendar-plus" aria-hidden="true"></i> Randevu Ver</a>
         <a asp-action="Edit" asp-route-id="@h.Id" class="btn btn-secondary"><i class="bi bi-pencil-square" aria-hidden="true"></i> Düzenle</a>
         <a asp-action="Delete" asp-route-id="@h.Id" class="btn btn-outline-danger"><i class="bi bi-trash3" aria-hidden="true"></i> Sil</a>
     </div>

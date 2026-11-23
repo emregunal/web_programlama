@@ -1,0 +1,62 @@
+@model Randevu
+@{
+    var hayvanlar = (SelectList)ViewData["Hayvanlar"]!;
+    var veterinerler = (SelectList)ViewData["Veterinerler"]!;
+    var durumlar = ViewData["Durumlar"] as List<SelectListItem>;
+    var sureler = new List<int> { 15, 30, 45, 60, 90, 120 };
+    if (Model.SureDakika >= 5 && Model.SureDakika <= 480 && !sureler.Contains(Model.SureDakika))
+    {
+        sureler.Add(Model.SureDakika);
+        sureler.Sort();
+    }
+    var sureSecenekleri = sureler.Select(s => new SelectListItem($"{s} dk", s.ToString())).ToList();
+}
+
+<div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+@if (!hayvanlar.Any())
+{
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+        <div>Randevu için önce <a asp-controller="Hayvanlar" asp-action="Create">hayvan kaydı</a> oluşturulmalıdır.</div>
+    </div>
+}
+<p class="form-text mb-3"><i class="bi bi-clock" aria-hidden="true"></i> Mesai: Pazartesi–Cumartesi 08:00–20:00</p>
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label asp-for="HayvanId" class="form-label"></label>
+        <select asp-for="HayvanId" asp-items="hayvanlar" class="form-select" data-val="true" data-val-required="Hayvan seçin.">
+            <option value="">-- Hayvan seçin --</option>
+        </select>
+        <span asp-validation-for="HayvanId" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="VeterinerId" class="form-label"></label>
+        <select asp-for="VeterinerId" asp-items="veterinerler" class="form-select" data-val="true" data-val-required="Veteriner seçin.">
+            <option value="">-- Veteriner seçin --</option>
+        </select>
+        <span asp-validation-for="VeterinerId" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Baslangic" class="form-label"></label>
+        <input asp-for="Baslangic" asp-format="{0:yyyy-MM-ddTHH:mm}" class="form-control" />
+        <span asp-validation-for="Baslangic" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="SureDakika" class="form-label"></label>
+        <select asp-for="SureDakika" asp-items="sureSecenekleri" class="form-select"></select>
+        <span asp-validation-for="SureDakika" class="text-danger"></span>
+    </div>
+    @if (Model.Id != 0 && durumlar != null)
+    {
+        <div class="col-md-6 mb-3">
+            <label asp-for="Durum" class="form-label"></label>
+            <select asp-for="Durum" asp-items="durumlar" class="form-select"></select>
+            <span asp-validation-for="Durum" class="text-danger"></span>
+        </div>
+    }
+    <div class="col-12">
+        <label asp-for="Neden" class="form-label"></label>
+        <textarea asp-for="Neden" class="form-control" rows="3" placeholder="ör. Genel kontrol"></textarea>
+        <span asp-validation-for="Neden" class="text-danger"></span>
+    </div>
+</div>

@@ -1,0 +1,53 @@
+@model Randevu
+@{
+    ViewData["Title"] = "Randevu Sil";
+    var muayeneVar = (bool)(ViewData["MuayeneVar"] ?? false);
+}
+
+<a asp-action="Details" asp-route-id="@Model.Id" class="geri-link"><i class="bi bi-arrow-left" aria-hidden="true"></i> Randevu detayı</a>
+<partial name="_Bildirim" />
+
+<div class="card silme-karti">
+    <div class="card-body">
+        <div class="silme-baslik">
+            @if (!muayeneVar)
+            {
+                <span class="silme-ikon" aria-hidden="true"><i class="bi bi-trash3"></i></span>
+                <div>
+                    <h1 class="h3 mb-1">Randevu Sil</h1>
+                    <p class="text-secondary mb-0">Bu randevuyu silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.</p>
+                </div>
+            }
+            else
+            {
+                <span class="silme-ikon uyari" aria-hidden="true"><i class="bi bi-exclamation-triangle"></i></span>
+                <div>
+                    <h1 class="h3 mb-1">Randevu Silinemez</h1>
+                    <p class="text-secondary mb-0">Bu randevunun muayenesi kaydedildiği için silinemez.</p>
+                </div>
+            }
+        </div>
+
+        <dl class="bilgi-listesi mb-4">
+            <div><dt>@Html.DisplayNameFor(m => m.Baslangic)</dt><dd class="fw-bold">@Model.Baslangic.ToString("dd.MM.yyyy HH:mm")</dd></div>
+            <div><dt>@Html.DisplayNameFor(m => m.SureDakika)</dt><dd>@Model.SureDakika dk</dd></div>
+            <div><dt>@Html.DisplayNameFor(m => m.HayvanId)</dt><dd>@Model.Hayvan!.Ad (@Model.Hayvan.Sahip!.AdSoyad)</dd></div>
+            <div><dt>@Html.DisplayNameFor(m => m.VeterinerId)</dt><dd>@Model.Veteriner!.AdSoyad</dd></div>
+            <div><dt>@Html.DisplayNameFor(m => m.Neden)</dt><dd>@(string.IsNullOrWhiteSpace(Model.Neden) ? "—" : Model.Neden)</dd></div>
+            <div><dt>@Html.DisplayNameFor(m => m.Durum)</dt><dd><partial name="_RandevuDurumuRozeti" model="Model.Durum" /></dd></div>
+        </dl>
+
+        @if (!muayeneVar)
+        {
+            <form asp-action="Delete" method="post" class="d-flex flex-wrap gap-2">
+                <input type="hidden" asp-for="Id" />
+                <button type="submit" class="btn btn-danger"><i class="bi bi-trash3" aria-hidden="true"></i> Randevuyu Sil</button>
+                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Vazgeç</a>
+            </form>
+        }
+        else
+        {
+            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Geri Dön</a>
+        }
+    </div>
+</div>

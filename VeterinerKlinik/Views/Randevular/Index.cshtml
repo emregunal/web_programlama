@@ -1,0 +1,174 @@
+@model IEnumerable<RandevuListeOgesi>
+@{
+    ViewData["Title"] = "Randevular";
+    var arama = ViewData["Arama"] as string;
+    var tarih = ViewData["Tarih"] as DateTime?;
+    var tarihMetni = tarih?.ToString("yyyy-MM-dd");
+    var veterinerler = (SelectList)ViewData["Veterinerler"]!;
+    var durumlar = (List<SelectListItem>)ViewData["Durumlar"]!;
+    var filtreVar = Context.Request.Query.Any(q => !string.IsNullOrEmpty(q.Value));
+}
+
+<div class="sayfa-baslik">
+    <div>
+        <h1>Randevular</h1>
+        @if (tarih != null)
+        {
+            <p class="sayfa-aciklama">@tarih.Value.ToString("dd.MM.yyyy dddd") günü için randevular listeleniyor.</p>
+        }
+        else
+        {
+            <p class="sayfa-aciklama">Bugünden itibaren gelecek randevular listeleniyor.</p>
+        }
+    </div>
+    <div class="sayfa-eylemler">
+        <div class="btn-group" role="group" aria-label="Görünüm">
+            <a asp-action="Index" class="btn btn-primary active" aria-current="true">
+                <i class="bi bi-list-ul" aria-hidden="true"></i> Liste
+            </a>
+            <a asp-action="Takvim" class="btn btn-outline-primary"><i class="bi bi-calendar3-week" aria-hidden="true"></i> Takvim</a>
+        </div>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg" aria-hidden="true"></i> Yeni Randevu
+        </a>
+    </div>
+</div>
+
+<partial name="_Bildirim" />
+
+<div class="ozet-grid">
+    <div class="ozet-kart">
+        <span class="ozet-ikon" aria-hidden="true"><i class="bi bi-calendar-day"></i></span>
+        <div>
+            <div class="ozet-etiket">Bugün planlı</div>
+            <div class="ozet-deger">@ViewData["BugunSayisi"]</div>
+        </div>
+    </div>
+    <div class="ozet-kart">
+        <span class="ozet-ikon vurgu" aria-hidden="true"><i class="bi bi-calendar-week"></i></span>
+        <div>
+            <div class="ozet-etiket">Bu hafta planlı</div>
+            <div class="ozet-deger">@ViewData["HaftaSayisi"]</div>
+        </div>
+    </div>
+    <div class="ozet-kart">
+        <span class="ozet-ikon tehlike" aria-hidden="true"><i class="bi bi-person-x"></i></span>
+        <div>
+            <div class="ozet-etiket">Gelmedi (son 30 gün)</div>
+            <div class="ozet-deger">@ViewData["GelmediSayisi"]</div>
+        </div>
+    </div>
+</div>
+
+<form method="get" asp-action="Index" class="filtre row g-2 align-items-end" role="search">
+    <div class="col-12 col-md">
+        <label for="filtreArama" class="form-label">Arama</label>
+        <div class="arama-kutusu">
+            <i class="bi bi-search" aria-hidden="true"></i>
+            <input type="search" id="filtreArama" name="arama" value="@arama" class="form-control"
+                   placeholder="Hayvan, sahip veya neden ara" />
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-2">
+        <label for="filtreTarih" class="form-label">Tarih</label>
+        <input type="date" id="filtreTarih" name="tarih" value="@tarihMetni" class="form-control" />
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <label for="filtreVeteriner" class="form-label">Veteriner</label>
+        <select id="filtreVeteriner" name="veterinerId" asp-items="veterinerler" class="form-select">
+            <option value="">Tümü</option>
+        </select>
+    </div>
+    <div class="col-sm-6 col-md-2">
+        <label for="filtreDurum" class="form-label">Durum</label>
+        <select id="filtreDurum" name="durum" asp-items="durumlar" class="form-select">
+            <option value="">Tümü</option>
+        </select>
+    </div>
+    <div class="col-sm-6 col-md-auto d-flex gap-2 justify-content-end">
+        @if (filtreVar)
+        {
+            <a asp-action="Index" class="btn btn-outline-secondary">Temizle</a>
+        }
+        <button type="submit" class="btn btn-outline-primary"><i class="bi bi-funnel" aria-hidden="true"></i> Filtrele</button>
+    </div>
+</form>
+
+<div class="tablo-kart">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th scope="col">Tarih / Saat</th>
+                <th scope="col">Hayvan</th>
+                <th scope="col">Sahip</th>
+                <th scope="col">Veteriner</th>
+                <th scope="col">Neden</th>
+                <th scope="col">Durum</th>
+                <th scope="col" class="text-end"><span class="visually-hidden">İşlemler</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in Model)
+            {
+                <tr>
+                    <td class="text-nowrap hucre-ana">@($"{r.Baslangic:dd.MM.yyyy dddd HH:mm}–{r.Bitis:HH:mm}")</td>
+                    <td>
+                        <a asp-controller="Hayvanlar" asp-action="Details" asp-route-id="@r.HayvanId" class="hucre-ana">@r.HayvanAdi</a>
+                        <span class="hucre-alt">@r.HayvanTuru.GetDisplayName()</span>
+                    </td>
+                    <td><a asp-controller="Sahipler" asp-action="Details" asp-route-id="@r.SahipId">@r.SahipAdSoyad</a></td>
+                    <td>@r.VeterinerAdSoyad</td>
+                    <td>@(string.IsNullOrWhiteSpace(r.Neden) ? "—" : r.Neden)</td>
+                    <td><partial name="_RandevuDurumuRozeti" model="r.Durum" /></td>
+                    <td>
+                        <div class="islemler">
+                            @if (r.Durum == RandevuDurumu.Planlandi)
+                            {
+                                <a asp-controller="Muayeneler" asp-action="Create" asp-route-randevuId="@r.Id" class="btn btn-ikon"
+                                   title="Muayeneye başla" aria-label="@r.HayvanAdi randevusu için muayeneye başla">
+                                    <i class="bi bi-clipboard2-plus" aria-hidden="true"></i>
+                                </a>
+                            }
+                            <a asp-action="Details" asp-route-id="@r.Id" class="btn btn-ikon" title="Detay"
+                               aria-label="@r.HayvanAdi randevusunun detayı">
+                                <i class="bi bi-eye" aria-hidden="true"></i>
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@r.Id" class="btn btn-ikon" title="Düzenle"
+                               aria-label="@r.HayvanAdi randevusunu düzenle">
+                                <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@r.Id" class="btn btn-ikon tehlike" title="Sil"
+                               aria-label="@r.HayvanAdi randevusunu sil">
+                                <i class="bi bi-trash3" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="7">
+                        <div class="bos-durum">
+                            <span class="bos-durum-ikon" aria-hidden="true"><i class="bi bi-calendar2-week"></i></span>
+                            @if (filtreVar)
+                            {
+                                <div class="bos-durum-baslik">Filtrelere uyan randevu bulunamadı.</div>
+                                <p>Filtreleri değiştirerek tekrar deneyin.</p>
+                                <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Filtreleri temizle</a>
+                            }
+                            else
+                            {
+                                <div class="bos-durum-baslik">Yaklaşan randevu yok.</div>
+                                <p>İlk randevuyu buradan oluşturabilirsiniz.</p>
+                                <a asp-action="Create" class="btn btn-primary btn-sm">
+                                    <i class="bi bi-plus-lg" aria-hidden="true"></i> Yeni Randevu
+                                </a>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

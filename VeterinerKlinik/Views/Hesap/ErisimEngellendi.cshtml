@@ -1,0 +1,23 @@
+@{
+    ViewData["Title"] = "Erişim Engellendi";
+}
+
+<div class="card silme-karti">
+    <div class="card-body">
+        <div class="silme-baslik">
+            <span class="silme-ikon uyari" aria-hidden="true"><i class="bi bi-shield-lock"></i></span>
+            <div>
+                <h1 class="h3 mb-1">Erişim Engellendi</h1>
+                <p class="text-secondary mb-0">Bu sayfaya erişim yetkiniz yok.</p>
+            </div>
+        </div>
+
+        <dl class="bilgi-listesi mb-4">
+            <div><dt>Rolünüz</dt><dd class="fw-bold">@User.RolAdi()</dd></div>
+        </dl>
+
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary">
+            <i class="bi bi-house" aria-hidden="true"></i> Ana Sayfa'ya Dön
+        </a>
+    </div>
+</div>

@@ -1478,3 +1478,130 @@ a {
     print-color-adjust: exact;
   }
 }
+
+.durum-mavi {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.takvim {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+  margin-bottom: 1.5rem;
+}
+
+.takvim-gun {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.75rem;
+  border: 1px solid var(--vk-kenar);
+  border-radius: var(--vk-radius-buyuk);
+  background: var(--vk-kart);
+  box-shadow: var(--vk-golge);
+}
+
+.takvim-gun.bugun {
+  border-color: var(--vk-birincil);
+  box-shadow: 0 0 0 2px var(--vk-birincil-acik);
+}
+
+.takvim-gun-baslik {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--vk-kenar);
+  font-weight: 800;
+  color: var(--vk-baslik);
+}
+
+.takvim-gun.bugun .takvim-gun-baslik {
+  color: var(--vk-birincil);
+}
+
+.takvim-gun-tarih {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--vk-soluk);
+}
+
+.takvim-randevu {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid var(--vk-kenar);
+  border-left: 4px solid #3b82f6;
+  border-radius: 8px;
+  background: var(--vk-kart);
+  color: var(--vk-metin);
+  font-size: 0.8125rem;
+  text-decoration: none;
+  transition: background-color var(--vk-gecis), border-color var(--vk-gecis);
+}
+
+.takvim-randevu:hover {
+  background: var(--vk-birincil-zemin);
+  color: var(--vk-metin);
+}
+
+.takvim-randevu.tamamlandi {
+  border-left-color: #16a34a;
+}
+
+.takvim-randevu.gelmedi {
+  border-left-color: var(--vk-tehlike);
+}
+
+.takvim-randevu.iptal {
+  border-left-color: #94a3b8;
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+
+.takvim-randevu-saat {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.takvim-randevu-hayvan {
+  font-weight: 700;
+  color: var(--vk-baslik);
+}
+
+.takvim-randevu-alt {
+  color: var(--vk-soluk);
+  overflow-wrap: anywhere;
+}
+
+.takvim-bos {
+  padding: 0.5rem 0;
+  font-size: 0.8125rem;
+  text-align: center;
+  color: var(--vk-soluk);
+  opacity: 0.7;
+}
+
+.takvim-ekle {
+  display: block;
+  padding: 0.25rem 0;
+  border: 1px dashed var(--vk-kenar-koyu);
+  border-radius: 8px;
+  text-align: center;
+  color: var(--vk-soluk);
+  text-decoration: none;
+  transition: color var(--vk-gecis), border-color var(--vk-gecis);
+}
+
+.takvim-ekle:hover {
+  border-color: var(--vk-birincil);
+  color: var(--vk-birincil);
+}
+
+@media (max-width: 1199.98px) {
+  .takvim {
+    grid-template-columns: 1fr;
+  }
+}

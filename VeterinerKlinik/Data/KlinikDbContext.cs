@@ -17,6 +17,7 @@ public class KlinikDbContext : DbContext
     public DbSet<Asi> Asilar => Set<Asi>();
     public DbSet<AsiKaydi> AsiKayitlari => Set<AsiKaydi>();
     public DbSet<Odeme> Odemeler => Set<Odeme>();
+    public DbSet<Kullanici> Kullanicilar => Set<Kullanici>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -70,6 +71,12 @@ public class KlinikDbContext : DbContext
         b.Entity<Odeme>()
             .HasOne(o => o.Muayene).WithMany(m => m.Odemeler)
             .HasForeignKey(o => o.MuayeneId).OnDelete(DeleteBehavior.SetNull);
+
+        b.Entity<Kullanici>()
+            .HasIndex(k => k.KullaniciAdi).IsUnique();
+        b.Entity<Kullanici>()
+            .HasOne(k => k.Veteriner).WithMany()
+            .HasForeignKey(k => k.VeterinerId).OnDelete(DeleteBehavior.SetNull);
 
         b.Entity<Veteriner>().HasData(
             new Veteriner { Id = 1, Ad = "Ayşe", Soyad = "Yılmaz", Uzmanlik = "Genel Veterinerlik", Telefon = "0532 000 00 01", Aktif = true },
