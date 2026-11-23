@@ -1,6 +1,7 @@
 @model IEnumerable<RandevuListeOgesi>
 @{
     ViewData["Title"] = "Randevu Takvimi";
+    var randevuEkleyebilir = YetkiKurallari.IzinVarMi(User, "Randevular", "Create");
     var pazartesi = (DateTime)ViewData["HaftaBasi"]!;
     var cumartesi = pazartesi.AddDays(5);
     var veterinerler = (SelectList)ViewData["Veterinerler"]!;
@@ -31,9 +32,12 @@
                 <i class="bi bi-calendar3-week" aria-hidden="true"></i> Takvim
             </a>
         </div>
-        <a asp-action="Create" class="btn btn-primary">
-            <i class="bi bi-plus-lg" aria-hidden="true"></i> Yeni Randevu
-        </a>
+        @if (randevuEkleyebilir)
+        {
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-lg" aria-hidden="true"></i> Yeni Randevu
+            </a>
+        }
     </div>
 </div>
 
@@ -100,10 +104,13 @@
             {
                 <div class="takvim-bos">Randevu yok</div>
             }
-            <a asp-action="Create" asp-route-baslangic="@ekleBaslangic" asp-route-veterinerId="@veterinerId" class="takvim-ekle"
-               title="@gunKisa için randevu ekle" aria-label="@gunBasligi için randevu ekle">
-                <i class="bi bi-plus-lg" aria-hidden="true"></i>
-            </a>
+            @if (randevuEkleyebilir)
+            {
+                <a asp-action="Create" asp-route-baslangic="@ekleBaslangic" asp-route-veterinerId="@veterinerId" class="takvim-ekle"
+                   title="@gunKisa için randevu ekle" aria-label="@gunBasligi için randevu ekle">
+                    <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                </a>
+            }
         </section>
     }
 </div>

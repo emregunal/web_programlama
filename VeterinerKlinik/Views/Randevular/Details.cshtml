@@ -4,6 +4,8 @@
     var muayeneId = ViewData["MuayeneId"] as int?;
     var bitis = Model.Baslangic.AddMinutes(Model.SureDakika);
     var sahip = Model.Hayvan!.Sahip!;
+    var randevuYonetebilir = YetkiKurallari.IzinVarMi(User, "Randevular", "Edit");
+    var planliMuayenesiz = Model.Durum == RandevuDurumu.Planlandi && muayeneId == null;
 }
 
 <a asp-action="Index" class="geri-link"><i class="bi bi-arrow-left" aria-hidden="true"></i> Randevular</a>
@@ -13,11 +15,14 @@
         <p class="sayfa-aciklama">@Model.Hayvan.Ad için @Model.Baslangic.ToString("dd.MM.yyyy HH:mm") randevusu.</p>
     </div>
     <div class="sayfa-eylemler">
-        @if (Model.Durum == RandevuDurumu.Planlandi && muayeneId == null)
+        @if (planliMuayenesiz && YetkiKurallari.IzinVarMi(User, "Muayeneler", "Create"))
         {
             <a asp-controller="Muayeneler" asp-action="Create" asp-route-randevuId="@Model.Id" class="btn btn-primary">
                 <i class="bi bi-clipboard2-plus" aria-hidden="true"></i> Muayeneye Başla
             </a>
+        }
+        @if (randevuYonetebilir && planliMuayenesiz)
+        {
             <form asp-action="DurumDegistir" method="post" onsubmit="return confirm('Randevu iptal edilsin mi?');">
                 <input type="hidden" name="id" value="@Model.Id" />
                 <input type="hidden" name="durum" value="@((int)RandevuDurumu.IptalEdildi)" />
@@ -29,7 +34,7 @@
                 <button type="submit" class="btn btn-secondary"><i class="bi bi-person-x" aria-hidden="true"></i> Gelmedi</button>
             </form>
         }
-        @if ((Model.Durum == RandevuDurumu.IptalEdildi || Model.Durum == RandevuDurumu.Gelmedi) && muayeneId == null)
+        @if (randevuYonetebilir && (Model.Durum is RandevuDurumu.IptalEdildi or RandevuDurumu.Gelmedi) && muayeneId == null)
         {
             <form asp-action="DurumDegistir" method="post" onsubmit="return confirm('Randevu tekrar planlansın mı?');">
                 <input type="hidden" name="id" value="@Model.Id" />
@@ -39,7 +44,7 @@
                 </button>
             </form>
         }
-        @if (muayeneId == null)
+        @if (randevuYonetebilir && muayeneId == null)
         {
             <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-secondary">
                 <i class="bi bi-pencil-square" aria-hidden="true"></i> Düzenle

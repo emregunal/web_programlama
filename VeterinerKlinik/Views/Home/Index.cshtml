@@ -17,21 +17,30 @@
     <h1 id="karsilamaBaslik">Veteriner Kliniği Yönetim Sistemi</h1>
     <p>Sahipler, hayvanlar, randevular, muayeneler, ilaçlar, aşılar ve ödemeleri tek bir panelden yönetin.</p>
     <div class="d-flex flex-wrap gap-2">
-        <a asp-controller="Muayeneler" asp-action="Create" class="btn btn-light">
-            <i class="bi bi-plus-lg" aria-hidden="true"></i> Yeni Muayene
-        </a>
-        <a asp-controller="Sahipler" asp-action="Create" class="btn btn-outline-light">
-            <i class="bi bi-person-plus" aria-hidden="true"></i> Yeni Sahip
-        </a>
-        <a asp-controller="Odemeler" asp-action="Create" class="btn btn-outline-light">
-            <i class="bi bi-cash-coin" aria-hidden="true"></i> Ödeme Al
-        </a>
+        @if (YetkiKurallari.IzinVarMi(User, "Muayeneler", "Create"))
+        {
+            <a asp-controller="Muayeneler" asp-action="Create" class="btn btn-light">
+                <i class="bi bi-plus-lg" aria-hidden="true"></i> Yeni Muayene
+            </a>
+        }
+        @if (YetkiKurallari.IzinVarMi(User, "Sahipler", "Create"))
+        {
+            <a asp-controller="Sahipler" asp-action="Create" class="btn btn-outline-light">
+                <i class="bi bi-person-plus" aria-hidden="true"></i> Yeni Sahip
+            </a>
+        }
+        @if (YetkiKurallari.IzinVarMi(User, "Odemeler", "Create"))
+        {
+            <a asp-controller="Odemeler" asp-action="Create" class="btn btn-outline-light">
+                <i class="bi bi-cash-coin" aria-hidden="true"></i> Ödeme Al
+            </a>
+        }
     </div>
 </section>
 
 <h2 class="bolum-baslik">Modüller</h2>
 <div class="modul-grid">
-    @foreach (var m in moduller)
+    @foreach (var m in moduller.Where(m => YetkiKurallari.OkuyabilirMi(User, m.Controller)))
     {
         <a class="modul-kart" asp-controller="@m.Controller" asp-action="Index">
             <span class="ozet-ikon" aria-hidden="true">
